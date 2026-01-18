@@ -430,6 +430,7 @@ class WWRandomizer:
     tweaks.prevent_door_boulder_softlocks(self)
     tweaks.update_tingle_statue_item_get_funcs(self)
     patcher.apply_patch(self, "tingle_chests_without_tuner")
+    tweaks.speed_up_tingle_jail_cutscene(self)  # Speed up Tingle jail rescue cutscene
     tweaks.make_tingle_statue_reward_rupee_rainbow_colored(self)
     if self.seed_hash is not None:
       tweaks.show_seed_hash_on_name_entry_screen(self)
