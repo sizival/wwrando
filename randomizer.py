@@ -428,6 +428,7 @@ class WWRandomizer:
     tweaks.disable_invisible_walls(self)
     tweaks.add_hint_signs(self)
     tweaks.prevent_door_boulder_softlocks(self)
+    tweaks.force_full_moon_photos(self)
     tweaks.update_tingle_statue_item_get_funcs(self)
     patcher.apply_patch(self, "tingle_chests_without_tuner")
     tweaks.make_tingle_statue_reward_rupee_rainbow_colored(self)

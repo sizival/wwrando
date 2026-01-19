@@ -2708,3 +2708,8 @@ def enable_hero_mode(self: WWRandomizer):
 def set_default_targeting_mode_to_switch(self: WWRandomizer):
   targeting_mode_addr = self.main_custom_symbols["option_targeting_mode"]
   self.dol.write_data(fs.write_u8, targeting_mode_addr, 1)
+
+def force_full_moon_photos(self: WWRandomizer):
+  # In snap_sunmoon_proc, change moon phase subject ID from 8 to 7.
+  # This makes Kamo accept any moon phase as a full moon.
+  self.dol.write_data(fs.write_u32, 0x80094248, 0x38800007)
