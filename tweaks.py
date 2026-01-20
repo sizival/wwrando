@@ -2714,3 +2714,32 @@ def enable_hero_mode(self: WWRandomizer):
 def set_default_targeting_mode_to_switch(self: WWRandomizer):
   targeting_mode_addr = self.main_custom_symbols["option_targeting_mode"]
   self.dol.write_data(fs.write_u8, targeting_mode_addr, 1)
+
+def set_auction_starting_item(self):
+  patcher.apply_patch(self, "auction_deterministic_item")
+  
+  # Always start with the cheapest item (index 0).
+  # TODO: Add a UI option to configure this.
+  starting_index = 0
+  
+  if "auction_cycle_index" in self.main_custom_symbols:
+    auction_cycle_index_addr = self.main_custom_symbols["auction_cycle_index"]
+    self.dol.write_data(fs.write_u8, auction_cycle_index_addr, starting_index)
+  else:
+    print("Warning: auction_cycle_index symbol not found. Auction starting item will not be set.")
+
+  if "auction_reset_value_instr" in self.main_custom_symbols:
+    auction_reset_value_instr_addr = self.main_custom_symbols["auction_reset_value_instr"]
+    # Patch the immediate value of the "li r5, IMM" instruction.
+    # Instruction format: 38 A0 00 IMM (since li is addi r5, 0, IMM)
+    # We write to the lower 16 bits (offset + 2).
+    self.dol.write_data(fs.write_u16, auction_reset_value_instr_addr + 2, starting_index)
+  else:
+    print("Warning: auction_reset_value_instr symbol not found. Auction starting item reset logic will not be updated.")
+
+  if "auction_reset_value_instr_new_game" in self.main_custom_symbols:
+    auction_reset_value_instr_new_game_addr = self.main_custom_symbols["auction_reset_value_instr_new_game"]
+    # Patch the immediate value of the "li r4, IMM" instruction.
+    self.dol.write_data(fs.write_u16, auction_reset_value_instr_new_game_addr + 2, starting_index)
+  else:
+    print("Warning: auction_reset_value_instr_new_game symbol not found. Auction starting item reset logic (New Game) will not be updated.")

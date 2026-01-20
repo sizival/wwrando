@@ -61,6 +61,16 @@ lbz r4, 0 (r4) ; Load starting magic address into r4, then load byte at address 
 stb r4, 0 (r3) ; Max magic meter
 stb r4, 1 (r3) ; Current magic meter
 
+; Reset the auction cycle index
+lis r3, auction_cycle_index@ha
+addi r3, r3, auction_cycle_index@l
+
+.global auction_reset_value_instr_new_game
+auction_reset_value_instr_new_game:
+li r4, 0 ; This immediate value (0) will be patched by tweaks.py
+
+stb r4, 0 (r3)
+
 ; Give user-selected custom starting items
 bl init_starting_gear
 

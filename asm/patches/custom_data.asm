@@ -96,7 +96,11 @@ custom_DMC:
 
 .align 2 ; Align to the next 4 bytes
 
-
-
+; Current cycle position (0-3) for deterministic auction.
+; Stored in sys/main.dol so it persists even when d_a_auction.rel is unloaded.
+.global auction_cycle_index
+auction_cycle_index:
+  .byte 0
+  .align 2
 
 .close
