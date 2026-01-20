@@ -783,21 +783,27 @@ def update_shop_item_descriptions(self: WWRandomizer):
   msg.string = "This \\{1A 06 FF 00 00 01}%s \\{1A 06 FF 00 00 00}is just \\{1A 06 FF 00 00 01}%d Rupees!\\{1A 06 FF 00 00 00}\nBuy it! Buy it! Buy buy buy!\n\\{1A 05 00 00 08}I'll buy it\nNo thanks" % (item_name, cost)
 
 def update_auction_item_names(self: WWRandomizer):
-  item_name = self.logic.done_item_locations["Windfall Island - 5 Rupee Auction"]
+  item_name_5 = self.logic.done_item_locations["Windfall Island - 5 Rupee Auction"]
   msg = self.bmg.messages_by_id[7441]
-  msg.string = "\\{1A 06 FF 00 00 01}%s" % item_name
+  msg.string = "\\{1A 06 FF 00 00 01}%s" % item_name_5
   
-  item_name = self.logic.done_item_locations["Windfall Island - 40 Rupee Auction"]
+  item_name_40 = self.logic.done_item_locations["Windfall Island - 40 Rupee Auction"]
   msg = self.bmg.messages_by_id[7440]
-  msg.string = "\\{1A 06 FF 00 00 01}%s" % item_name
+  msg.string = "\\{1A 06 FF 00 00 01}%s" % item_name_40
   
-  item_name = self.logic.done_item_locations["Windfall Island - 60 Rupee Auction"]
+  item_name_60 = self.logic.done_item_locations["Windfall Island - 60 Rupee Auction"]
   msg = self.bmg.messages_by_id[7442]
-  msg.string = "\\{1A 06 FF 00 00 01}%s" % item_name
+  msg.string = "\\{1A 06 FF 00 00 01}%s" % item_name_60
   
-  item_name = self.logic.done_item_locations["Windfall Island - 80 Rupee Auction"]
+  item_name_80 = self.logic.done_item_locations["Windfall Island - 80 Rupee Auction"]
   msg = self.bmg.messages_by_id[7443]
-  msg.string = "\\{1A 06 FF 00 00 01}%s" % item_name
+  msg.string = "\\{1A 06 FF 00 00 01}%s" % item_name_80
+
+  msg = self.bmg.messages_by_id[804]
+  msg.string = "\\{1A 06 FF 00 00 01}Notice: Windfall Auction Tonight!\\{1A 06 FF 00 00 00}\nBidding starts at dusk.\nAll comers welcome!\nParticipate for the chance to win\n"
+  msg.string += "%s \\{1A 06 FF 00 00 01}%s\\{1A 06 FF 00 00 00} (SB: 5 rupees),\n%s \\{1A 06 FF 00 00 01}%s\\{1A 06 FF 00 00 00} (SB: 40 rupees),\n" % (get_indefinite_article(item_name_5), item_name_5, get_indefinite_article(item_name_40), item_name_40)
+  msg.string += "%s \\{1A 06 FF 00 00 01}%s\\{1A 06 FF 00 00 00} (SB: 60 rupees),\nand %s \\{1A 06 FF 00 00 01}%s\\{1A 06 FF 00 00 00} (SB: 80 rupees)!" % (get_indefinite_article(item_name_60), item_name_60, get_indefinite_article(item_name_80), item_name_80)
+  msg.word_wrap_string(self.bfn)
 
 def update_battlesquid_item_names(self: WWRandomizer):
   item_name = self.logic.done_item_locations["Windfall Island - Battlesquid - First Prize"]
