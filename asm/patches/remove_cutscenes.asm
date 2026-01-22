@@ -250,6 +250,10 @@ give_pearl_and_raise_totg_if_necessary:
 .org 0x2F80
   b 0x2FD8
 .close
+
+
+
+
 ; But because the above cutscene is also what normally allows you to give Joy Pendants to Mrs. Marie, we instead change the event bit she checks to enable that (1E04) to instead check the event bit for her having given you the reward for catching the Killer Bees (1F80).
 ; This is so the player doesn't need to manually trigger the above cutscene to do the Joy Pendant trading quests.
 .open "files/rels/d_a_npc_ho.rel" ; Mrs. Marie
@@ -260,3 +264,18 @@ give_pearl_and_raise_totg_if_necessary:
   ; For deciding what message to say when reacting to the player presenting a Joy Pendant
   li r4, 0x1F80
 .close
+
+
+
+
+; Remove the cutscene that plays in DRC when you use a water pot on magma for the first time.
+; In the demo_move function, we change the conditional branch that checks if event bit 0x0380 is set
+; to an unconditional branch, so it always skips the cutscene code.
+.open "files/rels/d_a_obj_magmarock.rel" ; Magma rock platform
+.org 0x238
+  b 0x31c
+.close
+
+
+
+
