@@ -374,6 +374,13 @@ class Options(BaseOptions):
   )
   #endregion
   
+  #region Quality of Life
+  instant_wallet_refill: bool = option(
+    default=False,
+    description="Instantly fills your wallet to maximum capacity when you receive a wallet upgrade (including the ones you start with).",
+  )
+  #endregion
+  
   #region Starting items
   randomized_gear: list[str] = option(
     default_factory=lambda: sorted(DEFAULT_RANDOMIZED_ITEMS),

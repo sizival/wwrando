@@ -640,6 +640,42 @@
             </item>
            </layout>
           </widget>
+          <widget class="QWidget" name="tab_qol">
+           <attribute name="title">
+            <string>Quality of Life</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_qol">
+            <item>
+             <widget class="QGroupBox" name="groupBox_qol">
+              <property name="title">
+               <string>Quality of Life Options</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_qol_group">
+               <item>
+                <widget class="QCheckBox" name="instant_wallet_refill">
+                 <property name="text">
+                  <string>Fill Wallet on Receive</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_qol">
+              <property name="orientation">
+               <enum>Qt::Orientation::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
           <widget class="QWidget" name="tab_starting_items">
            <property name="enabled">
             <bool>true</bool>

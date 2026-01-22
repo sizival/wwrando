@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'randomizer_window.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.6.3
+## Created by: Qt User Interface Compiler version 6.8.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -458,6 +458,27 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.addItem(self.verticalSpacer_7)
 
         self.tabWidget.addTab(self.tab_randomizer_settings, "")
+        self.tab_qol = QWidget()
+        self.tab_qol.setObjectName(u"tab_qol")
+        self.verticalLayout_qol = QVBoxLayout(self.tab_qol)
+        self.verticalLayout_qol.setObjectName(u"verticalLayout_qol")
+        self.groupBox_qol = QGroupBox(self.tab_qol)
+        self.groupBox_qol.setObjectName(u"groupBox_qol")
+        self.verticalLayout_qol_group = QVBoxLayout(self.groupBox_qol)
+        self.verticalLayout_qol_group.setObjectName(u"verticalLayout_qol_group")
+        self.instant_wallet_refill = QCheckBox(self.groupBox_qol)
+        self.instant_wallet_refill.setObjectName(u"instant_wallet_refill")
+
+        self.verticalLayout_qol_group.addWidget(self.instant_wallet_refill)
+
+
+        self.verticalLayout_qol.addWidget(self.groupBox_qol)
+
+        self.verticalSpacer_qol = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+
+        self.verticalLayout_qol.addItem(self.verticalSpacer_qol)
+
+        self.tabWidget.addTab(self.tab_qol, "")
         self.tab_starting_items = QWidget()
         self.tab_starting_items.setObjectName(u"tab_starting_items")
         self.tab_starting_items.setEnabled(True)
@@ -1090,6 +1111,9 @@ class Ui_MainWindow(object):
         self.remove_title_and_ending_videos.setText(QCoreApplication.translate("MainWindow", u"Remove Title and Ending Videos", None))
         self.remove_music.setText(QCoreApplication.translate("MainWindow", u"Remove Music", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_randomizer_settings), QCoreApplication.translate("MainWindow", u"Randomizer Settings", None))
+        self.groupBox_qol.setTitle(QCoreApplication.translate("MainWindow", u"Quality of Life Options", None))
+        self.instant_wallet_refill.setText(QCoreApplication.translate("MainWindow", u"Fill Wallet on Receive", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_qol), QCoreApplication.translate("MainWindow", u"Quality of Life", None))
         self.label_for_randomized_gear.setText(QCoreApplication.translate("MainWindow", u"Randomized Gear", None))
         self.remove_gear.setText(QCoreApplication.translate("MainWindow", u"<-", None))
         self.add_gear.setText(QCoreApplication.translate("MainWindow", u"->", None))

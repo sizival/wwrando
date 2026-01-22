@@ -1403,6 +1403,10 @@ def update_sword_mode_game_variable(self: WWRandomizer):
   else:
     raise Exception("Unknown sword mode: %s" % self.options.sword_mode)
 
+def update_wallet_refill_game_variable(self: WWRandomizer):
+  fill_wallet_value = int(self.options.instant_wallet_refill)
+  self.dol.write_data(fs.write_u8, self.main_custom_symbols["should_fill_wallet_on_receive"], fill_wallet_value)
+
 def update_starting_gear(self: WWRandomizer, starting_gear: list[str]):
   # Saves the list of starting items that should be given to the player when starting a new save.
   # Note: This tweak may be called more than once in a single randomization.
