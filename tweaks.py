@@ -2715,7 +2715,7 @@ def increase_npc_movement_speeds(self: WWRandomizer):
   increase_anton_speed(self)
 
   # Overwrites the hardcoded 0.1f acceleration constant in d_a_npc_people.rel
-  # with 20.0f, making acceleration instant if speed is <= 15.0f. This applies to all NPCs,
+  # with 15.0f, making acceleration instant if speed is <= 15.0f. This applies to all NPCs,
   # but doesn't affect non-speed-increased NPCs noticeably.
   rel = self.get_rel("files/rels/d_a_npc_people.rel")
   rel.write_data(fs.write_float, 0xA500, 15.0)
