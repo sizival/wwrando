@@ -2712,21 +2712,40 @@ def set_default_targeting_mode_to_switch(self: WWRandomizer):
 def increase_npc_movement_speeds(self: WWRandomizer):
   # TODO: FIX GARRICKSON DISTANCE FROM MAILBOX
   increase_garrickson_speed(self)
+  increase_anton_speed(self)
 
   # Overwrites the hardcoded 0.1f acceleration constant in d_a_npc_people.rel
-  # with 20.0f, making acceleration instant if speed is <= 20.0f. This applies to all NPCs,
+  # with 20.0f, making acceleration instant if speed is <= 15.0f. This applies to all NPCs,
   # but doesn't affect non-speed-increased NPCs noticeably.
   rel = self.get_rel("files/rels/d_a_npc_people.rel")
-  rel.write_data(fs.write_float, 0xA500, 20.0)
+  rel.write_data(fs.write_float, 0xA500, 15.0)
 
 def increase_garrickson_speed(self: WWRandomizer):
-  # Increases Garrickson's (Uo3) translation speed from 2.0 to 20.0 by modifying
-  # his data table in d_a_npc_people.rel.
+  # Increases Garrickson's (Uo3) speed 5x by modifying
+  # his data table in d_a_npc_people.rel (offset 0xB158).
   rel = self.get_rel("files/rels/d_a_npc_people.rel")
+  rel.write_data(fs.write_u16, 0xB168, 10000)  # field_0x10: max turn step
+  rel.write_data(fs.write_u16, 0xB190, 9000)  # field_0x38: rotation step
+  rel.write_data(fs.write_u16, 0xB192, 2000)  # field_0x3A: walk rotation step
   rel.write_data(fs.write_float, 0xB19C, 0.12)  # field_0x44: animation speed (scaled down to look normal)
-  rel.write_data(fs.write_float, 0xB1A0, 20.0)  # field_0x48: translation speed
+  rel.write_data(fs.write_float, 0xB1A0, 10.0)  # field_0x48: translation speed
 
   # Set wait timers to 1 frame so Garrickson walks almost continuously.
   # Setting to 0 would cause a bug where he gets stuck in wait mode forever.
   rel.write_data(fs.write_u16, 0xB1A8, 1)  # field_0x50: min wait timer
   rel.write_data(fs.write_u16, 0xB1AA, 1)  # field_0x52: max wait timer
+
+def increase_anton_speed(self: WWRandomizer):
+  # Increases Anton's (Um2) speed 5x by modifying
+  # his data table in d_a_npc_people.rel (offset 0xB458).
+  rel = self.get_rel("files/rels/d_a_npc_people.rel")
+  rel.write_data(fs.write_u16, 0xB468, 5000)  # field_0x10: max turn step
+  rel.write_data(fs.write_u16, 0xB490, 6000)  # field_0x38: turning acceleration
+  rel.write_data(fs.write_u16, 0xB492, 2000)  # field_0x3A: turning step increase
+  rel.write_data(fs.write_float, 0xB49C, 0.12)   # field_0x44: animation speed (scaled down to look normal)
+  rel.write_data(fs.write_float, 0xB4A0, 12.0)  # field_0x48: translation speed
+
+  # Set wait timers to 1 frame so Anton walks almost continuously.
+  # Setting to 0 would cause a bug where he gets stuck in wait mode forever.
+  rel.write_data(fs.write_u16, 0xB4A8, 1)  # field_0x50: min wait timer
+  rel.write_data(fs.write_u16, 0xB4AA, 1)  # field_0x52: max wait timer
