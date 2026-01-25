@@ -2708,3 +2708,25 @@ def enable_hero_mode(self: WWRandomizer):
 def set_default_targeting_mode_to_switch(self: WWRandomizer):
   targeting_mode_addr = self.main_custom_symbols["option_targeting_mode"]
   self.dol.write_data(fs.write_u8, targeting_mode_addr, 1)
+
+def increase_npc_movement_speeds(self: WWRandomizer):
+  # TODO: FIX GARRICKSON DISTANCE FROM MAILBOX
+  increase_garrickson_speed(self)
+
+  # Overwrites the hardcoded 0.1f acceleration constant in d_a_npc_people.rel
+  # with 20.0f, making acceleration instant if speed is <= 20.0f. This applies to all NPCs,
+  # but doesn't affect non-speed-increased NPCs noticeably.
+  rel = self.get_rel("files/rels/d_a_npc_people.rel")
+  rel.write_data(fs.write_float, 0xA500, 20.0)
+
+def increase_garrickson_speed(self: WWRandomizer):
+  # Increases Garrickson's (Uo3) translation speed from 2.0 to 20.0 by modifying
+  # his data table in d_a_npc_people.rel.
+  rel = self.get_rel("files/rels/d_a_npc_people.rel")
+  rel.write_data(fs.write_float, 0xB19C, 0.12)  # field_0x44: animation speed (scaled down to look normal)
+  rel.write_data(fs.write_float, 0xB1A0, 20.0)  # field_0x48: translation speed
+
+  # Set wait timers to 1 frame so Garrickson walks almost continuously.
+  # Setting to 0 would cause a bug where he gets stuck in wait mode forever.
+  rel.write_data(fs.write_u16, 0xB1A8, 1)  # field_0x50: min wait timer
+  rel.write_data(fs.write_u16, 0xB1AA, 1)  # field_0x52: max wait timer
