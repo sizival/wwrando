@@ -458,6 +458,8 @@ class WWRandomizer:
     tweaks.prevent_fairy_island_softlocks(self)
     tweaks.give_fairy_fountains_distinct_colors(self)
     tweaks.modify_outset_drops(self)
+    tweaks.modify_southern_fairy_drops(self)
+    tweaks.modify_tingle_island_drops(self)
     
     customizer.replace_link_model(self)
     tweaks.change_starting_clothes(self)

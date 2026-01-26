@@ -2732,3 +2732,82 @@ def modify_outset_drops(self: WWRandomizer):
   # Override the dropped_item_id after copying params
   new_pot.dropped_item_id = self.item_name_to_id["30 Bombs (Pickup)"]
   dzr.save_changes()
+
+def modify_southern_fairy_drops(self: WWRandomizer):
+  dzr = self.get_arc("files/res/Stage/sea/Room39.arc").get_file("room.dzr", DZx)
+
+  # Pot 1 - 30 Bombs
+  pot1 = dzr.add_entity(ACTR)
+  pot1.name = "kotubo"
+  pot1.params = 1887436581
+  pot1.x_pos = -20285.06
+  pot1.y_pos = 637.1605
+  pot1.z_pos = 180000
+  pot1.enemy_number = 0xFFFF
+  pot1.dropped_item_id = self.item_name_to_id["30 Bombs (Pickup)"]
+
+  # Pot 2 - 30 Arrows
+  pot2 = dzr.add_entity(ACTR)
+  pot2.name = "kotubo"
+  pot2.params = 1887436581
+  pot2.x_pos = -20285.06
+  pot2.y_pos = 637.1605
+  pot2.z_pos = 180100
+  pot2.enemy_number = 0xFFFF
+  pot2.dropped_item_id = self.item_name_to_id["30 Arrows (Pickup)"]
+
+  # Pot 3 - Large Magic Jar
+  pot3 = dzr.add_entity(ACTR)
+  pot3.name = "kotubo"
+  pot3.params = 1887436581
+  pot3.x_pos = -20285.06
+  pot3.y_pos = 637.1605
+  pot3.z_pos = 180200
+  pot3.enemy_number = 0xFFFF
+  pot3.dropped_item_id = self.item_name_to_id["Large Magic Jar (Pickup)"]
+
+  dzr.save_changes()
+
+def modify_tingle_island_drops(self: WWRandomizer):
+  dzr = self.get_arc("files/res/Stage/sea/Room17.arc").get_file("room.dzr", DZx)
+
+  # Pot 1 - 30 Bombs
+  pot1 = dzr.add_entity(ACTR)
+  pot1.name = "kotubo"
+  pot1.params = 1887436581
+  pot1.x_pos = -100390
+  pot1.y_pos = 324.9868
+  pot1.z_pos = -80000
+  pot1.x_rot = 0
+  pot1.y_rot = 0
+  pot1.z_rot = 0
+  pot1.enemy_number = 0xFFFF
+  pot1.dropped_item_id = self.item_name_to_id["30 Bombs (Pickup)"]
+
+  # Pot 2 - 30 Arrows
+  pot2 = dzr.add_entity(ACTR)
+  pot2.name = "kotubo"
+  pot2.params = 1887436581
+  pot2.x_pos = -100390
+  pot2.y_pos = 324.9868
+  pot2.z_pos = -80100
+  pot2.x_rot = 0
+  pot2.y_rot = 0
+  pot2.z_rot = 0
+  pot2.enemy_number = 0xFFFF
+  pot2.dropped_item_id = self.item_name_to_id["30 Arrows (Pickup)"]
+
+  # Pot 3 - Large Magic Jar
+  pot3 = dzr.add_entity(ACTR)
+  pot3.name = "kotubo"
+  pot3.params = 1887436581
+  pot3.x_pos = -100390
+  pot3.y_pos = 324.9868
+  pot3.z_pos = -79900
+  pot3.x_rot = 0
+  pot3.y_rot = 0
+  pot3.z_rot = 0
+  pot3.enemy_number = 0xFFFF
+  pot3.dropped_item_id = self.item_name_to_id["Large Magic Jar (Pickup)"]
+
+  dzr.save_changes()
