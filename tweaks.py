@@ -2708,3 +2708,27 @@ def enable_hero_mode(self: WWRandomizer):
 def set_default_targeting_mode_to_switch(self: WWRandomizer):
   targeting_mode_addr = self.main_custom_symbols["option_targeting_mode"]
   self.dol.write_data(fs.write_u8, targeting_mode_addr, 1)
+
+def modify_outset_drops(self: WWRandomizer):
+  dzr = self.get_arc("files/res/Stage/sea/Room44.arc").get_file("room.dzr", DZx)
+  actors = dzr.entries_by_type(ACTR)
+  pots = [actor for actor in actors if actor.name == "kotubo"]
+  pots[2].dropped_item_id = self.item_name_to_id["30 Arrows (Pickup)"]
+  pots[2].save_changes()
+  pots[3].dropped_item_id = self.item_name_to_id["Large Magic Jar (Pickup)"]
+  pots[3].save_changes()
+
+  # Add a new pot next to pots[2] that drops 30 bombs - shallow copy of pots[2]
+  new_pot = dzr.add_entity(ACTR)
+  new_pot.name = pots[2].name
+  new_pot.params = pots[2].params
+  new_pot.x_pos = pots[2].x_pos + 80
+  new_pot.y_pos = pots[2].y_pos
+  new_pot.z_pos = pots[2].z_pos - 40
+  new_pot.x_rot = pots[2].x_rot
+  new_pot.y_rot = pots[2].y_rot
+  new_pot.z_rot = pots[2].z_rot
+  new_pot.enemy_number = pots[2].enemy_number
+  # Override the dropped_item_id after copying params
+  new_pot.dropped_item_id = self.item_name_to_id["30 Bombs (Pickup)"]
+  dzr.save_changes()
