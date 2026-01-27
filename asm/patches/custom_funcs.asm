@@ -197,11 +197,13 @@ addi r4, r4, 0x0080
 stw r4, 0xC (r3)
 
 ; Set a switch (21) for having seen the gossip stone event in DRC where KoRL tells you about giving bait to rats.
+; Also set a switch (14) for having seen the event where the hanging platform is lowered.
 ; Also set a switch (09) for having seen the event where the camera pans up to Valoo when you go outside.
 ; Also set a switch (46) for having seen the event where the camera pans around when you first enter DRC.
 lis r3, 0x803C4FF4@ha ; Dragon Roost Cavern stage info.
 addi r3, r3, 0x803C4FF4@l
-li r4, 0x0200
+lis r4, 0x0010 ; Switch 0x14 (Hanging platform cutscene)
+ori r4, r4, 0x0200 ; Switch 0x09 (Camera pans to Valoo)
 stw r4, 4 (r3)
 li r4, 0x0002
 stw r4, 8 (r3)
