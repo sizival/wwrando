@@ -144,6 +144,9 @@ bl onEventBit__11dSv_event_cFUs
 li r4, 0x4002 ; Saw cutscene before Ganondorf fight
 bl onEventBit__11dSv_event_cFUs
 
+li r4, 0x0D02 ; GAVE_BLUE_CHU_JELLY_TO_DOC_BANDAM
+bl onEventBit__11dSv_event_cFUs
+
 li r4, 0
 ori r4, r4, 0xBFFF ; Bitfield of which pigs you brought to Rose during the prologue (Pink, Speckled, Black)
 lis r5, captured_prologue_pigs_bitfield@ha 
