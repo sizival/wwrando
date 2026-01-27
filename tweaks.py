@@ -2719,95 +2719,97 @@ def modify_outset_drops(self: WWRandomizer):
   pots[3].save_changes()
 
   # Add a new pot next to pots[2] that drops 30 bombs - shallow copy of pots[2]
-  new_pot = dzr.add_entity(ACTR)
-  new_pot.name = pots[2].name
-  new_pot.params = pots[2].params
-  new_pot.x_pos = pots[2].x_pos + 80
-  new_pot.y_pos = pots[2].y_pos
-  new_pot.z_pos = pots[2].z_pos - 40
-  new_pot.x_rot = pots[2].x_rot
-  new_pot.y_rot = pots[2].y_rot
-  new_pot.z_rot = pots[2].z_rot
-  new_pot.enemy_number = pots[2].enemy_number
-  # Override the dropped_item_id after copying params
-  new_pot.dropped_item_id = self.item_name_to_id["30 Bombs (Pickup)"]
+  add_pot_drop(dzr, self.item_name_to_id["30 Bombs (Pickup)"],
+               pots[2].x_pos + 80,
+               pots[2].y_pos,
+               pots[2].z_pos - 40,
+               pots[2].y_rot,
+               pots[2].z_rot,
+               pots[2].params)
   dzr.save_changes()
 
-def modify_southern_fairy_drops(self: WWRandomizer):
+def modify_needle_rock_drops(self: WWRandomizer):
+  dzr = self.get_arc("files/res/Stage/sea/Room29.arc").get_file("room.dzr", DZx)
+  actors = dzr.entries_by_type(ACTR)
+  barrels = [actor for actor in actors if actor.name == "Ktaru"]
+  barrels[0].dropped_item_id = self.item_name_to_id["30 Arrows (Pickup)"]
+  barrels[0].save_changes()
+  barrels[1].dropped_item_id = self.item_name_to_id["30 Bombs (Pickup)"]
+  barrels[1].save_changes()
+
+def add_pot_drop(dzr: DZx, item_id: int, x: float, y: float, z: float, y_rot: int = 0, z_rot: int = 0, params: int = 1887436581):
+  """Helper to add a pot with a specific drop at given coordinates."""
+  pot = dzr.add_entity(ACTR)
+  pot.name = "kotubo" # Small pot actor
+  pot.params = params # Params that will load the pot, will be partially overridden by dropped_item_id
+  pot.x_pos = x
+  pot.y_pos = y
+  pot.z_pos = z
+  pot.x_rot = 0
+  pot.y_rot = y_rot
+  pot.z_rot = z_rot
+  pot.enemy_number = 0xFFFF
+  pot.dropped_item_id = item_id
+
+def add_western_fairy_drops(self: WWRandomizer):
+  dzr = self.get_arc("files/res/Stage/sea/Room15.arc").get_file("room.dzr", DZx)
+
+  add_pot_drop(dzr, self.item_name_to_id["30 Bombs (Pickup)"], -320040, 638.0046, -100280.7)
+  add_pot_drop(dzr, self.item_name_to_id["30 Arrows (Pickup)"], -320140, 638.0046, -100280.7)
+  add_pot_drop(dzr, self.item_name_to_id["Large Magic Jar (Pickup)"], -320240, 638.0046, -100280.7)
+
+  dzr.save_changes()
+
+def add_southern_fairy_drops(self: WWRandomizer):
   dzr = self.get_arc("files/res/Stage/sea/Room39.arc").get_file("room.dzr", DZx)
 
-  # Pot 1 - 30 Bombs
-  pot1 = dzr.add_entity(ACTR)
-  pot1.name = "kotubo"
-  pot1.params = 1887436581
-  pot1.x_pos = -20285.06
-  pot1.y_pos = 637.1605
-  pot1.z_pos = 180000
-  pot1.enemy_number = 0xFFFF
-  pot1.dropped_item_id = self.item_name_to_id["30 Bombs (Pickup)"]
-
-  # Pot 2 - 30 Arrows
-  pot2 = dzr.add_entity(ACTR)
-  pot2.name = "kotubo"
-  pot2.params = 1887436581
-  pot2.x_pos = -20285.06
-  pot2.y_pos = 637.1605
-  pot2.z_pos = 180100
-  pot2.enemy_number = 0xFFFF
-  pot2.dropped_item_id = self.item_name_to_id["30 Arrows (Pickup)"]
-
-  # Pot 3 - Large Magic Jar
-  pot3 = dzr.add_entity(ACTR)
-  pot3.name = "kotubo"
-  pot3.params = 1887436581
-  pot3.x_pos = -20285.06
-  pot3.y_pos = 637.1605
-  pot3.z_pos = 180200
-  pot3.enemy_number = 0xFFFF
-  pot3.dropped_item_id = self.item_name_to_id["Large Magic Jar (Pickup)"]
+  add_pot_drop(dzr, self.item_name_to_id["30 Bombs (Pickup)"], -20285.06, 637.1605, 180000)
+  add_pot_drop(dzr, self.item_name_to_id["30 Arrows (Pickup)"], -20285.06, 637.1605, 180100)
+  add_pot_drop(dzr, self.item_name_to_id["Large Magic Jar (Pickup)"], -20285.06, 637.1605, 180200)
 
   dzr.save_changes()
 
-def modify_tingle_island_drops(self: WWRandomizer):
+def add_tingle_island_drops(self: WWRandomizer):
   dzr = self.get_arc("files/res/Stage/sea/Room17.arc").get_file("room.dzr", DZx)
 
-  # Pot 1 - 30 Bombs
-  pot1 = dzr.add_entity(ACTR)
-  pot1.name = "kotubo"
-  pot1.params = 1887436581
-  pot1.x_pos = -100390
-  pot1.y_pos = 324.9868
-  pot1.z_pos = -80000
-  pot1.x_rot = 0
-  pot1.y_rot = 0
-  pot1.z_rot = 0
-  pot1.enemy_number = 0xFFFF
-  pot1.dropped_item_id = self.item_name_to_id["30 Bombs (Pickup)"]
+  add_pot_drop(dzr, self.item_name_to_id["30 Bombs (Pickup)"], -100390, 324.9868, -80000)
+  add_pot_drop(dzr, self.item_name_to_id["30 Arrows (Pickup)"], -100390, 324.9868, -80100)
+  add_pot_drop(dzr, self.item_name_to_id["Large Magic Jar (Pickup)"], -100390, 324.9868, -79900)
 
-  # Pot 2 - 30 Arrows
-  pot2 = dzr.add_entity(ACTR)
-  pot2.name = "kotubo"
-  pot2.params = 1887436581
-  pot2.x_pos = -100390
-  pot2.y_pos = 324.9868
-  pot2.z_pos = -80100
-  pot2.x_rot = 0
-  pot2.y_rot = 0
-  pot2.z_rot = 0
-  pot2.enemy_number = 0xFFFF
-  pot2.dropped_item_id = self.item_name_to_id["30 Arrows (Pickup)"]
+  dzr.save_changes()
 
-  # Pot 3 - Large Magic Jar
-  pot3 = dzr.add_entity(ACTR)
-  pot3.name = "kotubo"
-  pot3.params = 1887436581
-  pot3.x_pos = -100390
-  pot3.y_pos = 324.9868
-  pot3.z_pos = -79900
-  pot3.x_rot = 0
-  pot3.y_rot = 0
-  pot3.z_rot = 0
-  pot3.enemy_number = 0xFFFF
-  pot3.dropped_item_id = self.item_name_to_id["Large Magic Jar (Pickup)"]
+def add_pawprint_drops(self: WWRandomizer):
+  dzr = self.get_arc("files/res/Stage/sea/Room12.arc").get_file("room.dzr", DZx)
+
+  add_pot_drop(dzr, self.item_name_to_id["30 Bombs (Pickup)"], 79562.02, 300, -179397.5)
+  add_pot_drop(dzr, self.item_name_to_id["30 Arrows (Pickup)"], 79621.74, 300, -179319.2)
+  add_pot_drop(dzr, self.item_name_to_id["Large Magic Jar (Pickup)"], 79680.52, 300, -179239.9)
+
+  dzr.save_changes()
+
+def add_stone_watcher_drops(self: WWRandomizer):
+  dzr = self.get_arc("files/res/Stage/sea/Room31.arc").get_file("room.dzr", DZx)
+
+  add_pot_drop(dzr, self.item_name_to_id["30 Bombs (Pickup)"], -121809.1, 550, 100066.1)
+  add_pot_drop(dzr, self.item_name_to_id["30 Arrows (Pickup)"], -121821, 550, 100203.9)
+  add_pot_drop(dzr, self.item_name_to_id["Large Magic Jar (Pickup)"], -121832.6, 550, 100335.8)
+
+  dzr.save_changes()
+
+def add_dri_drops(self: WWRandomizer):
+  dzr = self.get_arc("files/res/Stage/sea/Room13.arc").get_file("room.dzr", DZx)
+
+  add_pot_drop(dzr, self.item_name_to_id["30 Bombs (Pickup)"], 197557, 136, -200046)
+  add_pot_drop(dzr, self.item_name_to_id["30 Arrows (Pickup)"], 197657, 136, -200046)
+  add_pot_drop(dzr, self.item_name_to_id["Large Magic Jar (Pickup)"], 197757, 136, -200046)
+
+  dzr.save_changes()
+
+def add_forest_haven_drops(self: WWRandomizer):
+  dzr = self.get_arc("files/res/Stage/sea/Room41.arc").get_file("room.dzr", DZx)
+
+  add_pot_drop(dzr, self.item_name_to_id["30 Bombs (Pickup)"], 217476.3, 34.99976, 195610.5)
+  add_pot_drop(dzr, self.item_name_to_id["30 Arrows (Pickup)"], 217462.3, 34.99976, 195700.2)
+  add_pot_drop(dzr, self.item_name_to_id["Large Magic Jar (Pickup)"], 217448.3, 34.99976, 195786.8)
 
   dzr.save_changes()
