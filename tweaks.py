@@ -1344,6 +1344,12 @@ def increase_grapple_animation_speed(self: WWRandomizer):
   # Increase the counter that determines how fast to end the wrap around animation. (From +1 each frame to +6 each frame)
   self.dol.write_data(fs.write_u32, 0x800EECA8, 0x38A30006) # addi r5,r3,6
 
+def increase_hookshot_range(self: WWRandomizer):
+  # Increase the hookshot's maximum range from 1500.0 to 50000.0 units.
+  # This affects both the aiming raycast distance and the range check that triggers hookshot return.
+  # Both uses share the same constant at 0x803F9DFC.
+  self.dol.write_data(fs.write_float, 0x803F9DFC, 50000.0)
+
 # Speeds up the rate in which blocks move when pushed/pulled
 def increase_block_moving_animation(self: WWRandomizer):
   # Increase Link's pushing animation speed from 1.0 to 1.4
