@@ -351,6 +351,11 @@ class Options(BaseOptions):
     default=True,
     description="Removes the door in Ganon's Tower that only unlocks when you defeat the rematch versions of Gohma, Kalle Demos, Jalhalla, and Molgera.",
   )
+  fairy_fountains_have_chests: bool = option(
+    default=False,
+    description="Replaces Great Fairy NPCs in fairy fountains with treasure chests containing their items.<br>"
+      "This allows you to obtain the items without watching the fairy cutscene.",
+  )
   invert_camera_x_axis: bool = option(
     default=False,
     permalink=False,

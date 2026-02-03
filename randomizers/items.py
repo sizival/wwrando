@@ -56,7 +56,24 @@ class ItemRandomizer(BaseRandomizer):
     for location_name, item_name in self.logic.done_item_locations.items():
       paths = self.logic.item_locations[location_name]["Paths"]
       for path in paths:
+        # Filter fairy fountain paths based on the option
+        if self.should_skip_path_for_fairy_fountain_option(path):
+          continue
         self.change_item(path, item_name)
+
+  def should_skip_path_for_fairy_fountain_option(self, path: str) -> bool:
+    """Check if a path should be skipped based on fairy_fountains_have_chests option."""
+    is_fairy_rel_path = path.startswith("rels/d_a_bigelf.rel@")
+    is_fairy_chest_path = re.match(r"^Fairy0[1-6]/Room0\.arc/Chest", path) is not None
+
+    if is_fairy_rel_path:
+      # Skip REL path if chests option is enabled (use chests instead)
+      return self.options.fairy_fountains_have_chests
+    elif is_fairy_chest_path:
+      # Skip chest path if chests option is disabled (use REL instead)
+      return not self.options.fairy_fountains_have_chests
+
+    return False
   
   def write_to_non_spoiler_log(self) -> str:
     log_str = ""

@@ -442,8 +442,59 @@ def add_chest_in_place_queen_fairy_cutscene(self: WWRandomizer):
   mother_island_chest.room_num = 9
   mother_island_chest.y_rot = 0x1000
   mother_island_chest.item_id = self.item_name_to_id["Progressive Bow"]
-  
+
   dzx.save_changes()
+
+def add_chests_in_place_of_fairy_fountain_fairies(self: WWRandomizer):
+  # Replace the Great Fairy (BigElf) actors in each fairy fountain with chests.
+  # This allows the fairy fountain items to be placed in chests instead of being given by the fairy NPC.
+
+  # Fairy fountain data: stage name, location name, BigElf coords, original item
+  # Each chest needs a unique opened_flag since fairy fountain stages may share flag space
+  fairy_fountains = [
+    # Stage, location name (for reference), x, y, z, y_rot, opened_flag
+    ("Fairy01", "Northern Fairy Island",  0.0, 75.0, -2200.0, 0, 0),
+    ("Fairy02", "Eastern Fairy Island",   0.0, 75.0, -2200.0, 0, 1),
+    ("Fairy03", "Western Fairy Island",   0.0, 75.0, -2200.0, 0, 2),
+    ("Fairy04", "Outset Island",          0.0, 75.0, -2200.0, 0, 3),
+    ("Fairy05", "Thorned Fairy Island",   0.0, 75.0, -2200.0, 0, 4),
+    ("Fairy06", "Southern Fairy Island",  0.0, 75.0, -2200.0, 0, 5),
+  ]
+
+  # Map stage names to their original items for setting the initial chest item
+  original_items = {
+    "Fairy01": "1000 Rupee Wallet",
+    "Fairy02": "60 Bomb Bomb Bag",
+    "Fairy03": "60 Arrow Quiver",
+    "Fairy04": "5000 Rupee Wallet",
+    "Fairy05": "99 Arrow Quiver",
+    "Fairy06": "99 Bomb Bomb Bag",
+  }
+
+  for stage_name, location_name, x, y, z, y_rot, opened_flag in fairy_fountains:
+    dzx = self.get_arc(f"files/res/Stage/{stage_name}/Room0.arc").get_file("room.dzr", DZx)
+
+    # Remove the BigElf (Great Fairy) actor
+    actors = dzx.entries_by_type_and_layer(ACTR, layer=DZxLayer.Default)
+    bigelf = next((x for x in actors if x.name == "BigElf"), None)
+    if bigelf is not None:
+      dzx.remove_entity(bigelf, ACTR, layer=DZxLayer.Default)
+
+    # Add a chest at the fairy's former location
+    chest = dzx.add_entity(TRES)
+    chest.name = "takara3"
+    chest.params = 0xFF000000
+    chest.switch_to_set = 0xFF
+    chest.chest_type = 0  # Default to light wood; CTMC will update this if enabled
+    chest.opened_flag = opened_flag
+    chest.x_pos = x
+    chest.y_pos = y
+    chest.z_pos = z
+    chest.room_num = 0
+    chest.y_rot = y_rot
+    chest.item_id = self.item_name_to_id[original_items[stage_name]]
+
+    dzx.save_changes()
 
 def add_cube_to_earth_temple_first_room(self: WWRandomizer):
   # If the player enters Earth Temple, uses Medli to cross the gap, brings Medli into the next room, then leaves Earth Temple, Medli will no longer be in the first room.
