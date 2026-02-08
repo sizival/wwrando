@@ -1611,6 +1611,24 @@ def implement_key_bag(self: WWRandomizer):
   pirate_charm_icon.replace_image_from_path(key_bag_icon_image_path)
   pirate_charm_icon.save_changes()
 
+def replace_boomerang_icon(self: WWRandomizer):
+  itemicon_arc = self.get_arc("files/res/Msg/itemicon.arc")
+  boomerang_icon = itemicon_arc.get_file("boomerang.bti", BTI)
+  new_icon_path = os.path.join(ASSETS_PATH, "magical boomerang icon.png")
+  boomerang_icon.replace_image_from_path(new_icon_path)
+  boomerang_icon.save_changes()
+
+def replace_boomerang_model_texture(self: WWRandomizer):
+  link_arc = self.get_arc("files/res/Object/Link.arc")
+  boomerang_model = link_arc.get_file("boomerang.bdl", BDL)
+  boomerang_tex = boomerang_model.tex1.textures_by_name["Boomerang"][0]
+  new_tex_path = os.path.join(ASSETS_PATH, "magical boomerang texture.png")
+  boomerang_tex.replace_image_from_path(new_tex_path)
+  boomerang_model.save()
+
+def rename_boomerang(self: WWRandomizer):
+  self.bmg.messages_by_id[0x1AB].string = "Magical Boomerang"
+
 def prevent_fire_mountain_lava_softlock(self: WWRandomizer):
   # Sometimes when spawning from spawn ID 0 outside fire mountain, the player will get stuck in an infinite loop of taking damage from lava.
   # The reason for this is that when the player enters the sea stage, the ship is spawned in at its new game starting position (either Outset or a randomized starting island) and the player is put on the ship.

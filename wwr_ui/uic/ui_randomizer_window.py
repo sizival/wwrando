@@ -947,6 +947,11 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_qol_experimental.addWidget(self.increase_boomerang_targets)
 
+        self.fast_boomerang = QCheckBox(self.groupBox_qol_experimental)
+        self.fast_boomerang.setObjectName(u"fast_boomerang")
+
+        self.verticalLayout_qol_experimental.addWidget(self.fast_boomerang)
+
         self.verticalSpacer_qol = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_qol_experimental.addItem(self.verticalSpacer_qol)
@@ -1257,6 +1262,7 @@ class Ui_MainWindow(object):
         self.speedup_tingle_jail.setText(QCoreApplication.translate("MainWindow", u"Speed Up Tingle Jail Cutscenes", None))
         self.fix_auction.setText(QCoreApplication.translate("MainWindow", u"Fix Auction", None))
         self.increase_boomerang_targets.setText(QCoreApplication.translate("MainWindow", u"Increase boomerang targets", None))
+        self.fast_boomerang.setText(QCoreApplication.translate("MainWindow", u"Fast boomerang", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_quality_of_life), QCoreApplication.translate("MainWindow", u"Quality of Life", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_player_customization), QCoreApplication.translate("MainWindow", u"Player Customization", None))
         self.option_description.setText("")

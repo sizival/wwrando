@@ -311,6 +311,12 @@ class WWRandomizer:
         patcher.apply_patch(self, "reveal_sea_chart")
       if self.options.increase_boomerang_targets:
         patcher.apply_patch(self, "boomerang_10_targets")
+      if self.options.fast_boomerang:
+        patcher.apply_patch(self, "fast_boomerang")
+
+        # Scarlet red trail color
+        scarlet_trail = (0xDC, 0x14, 0x14, 0x96)
+        self.dol.write_data(fs.write_and_pack_bytes, 0x803F6268, scarlet_trail, "BBBB")
       if self.options.invert_camera_x_axis:
         patcher.apply_patch(self, "invert_camera_x_axis")
       if self.options.invert_sea_compass_x_axis:
@@ -412,6 +418,9 @@ class WWRandomizer:
     #tweaks.add_cube_to_earth_temple_first_room(self)
     tweaks.add_more_magic_jars(self)
     tweaks.modify_title_screen_logo(self)
+    tweaks.replace_boomerang_icon(self)
+    tweaks.replace_boomerang_model_texture(self)
+    tweaks.rename_boomerang(self)
     tweaks.update_game_name_icon_and_banners(self)
     tweaks.allow_dungeon_items_to_appear_anywhere(self)
     tweaks.fix_shop_item_y_offsets(self)

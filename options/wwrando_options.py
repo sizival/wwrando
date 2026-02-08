@@ -355,6 +355,10 @@ class Options(BaseOptions):
     default=False,
     description="Increases the maximum number of boomerang lock-on targets from 5 to 10.",
   )
+  fast_boomerang: bool = option(
+    default=False,
+    description="Triples the boomerang's flight speed, making it travel and return much faster.",
+  )
   invert_camera_x_axis: bool = option(
     default=False,
     permalink=False,
