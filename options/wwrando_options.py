@@ -351,6 +351,10 @@ class Options(BaseOptions):
     default=True,
     description="Removes the door in Ganon's Tower that only unlocks when you defeat the rematch versions of Gohma, Kalle Demos, Jalhalla, and Molgera.",
   )
+  increase_boomerang_targets: bool = option(
+    default=False,
+    description="Increases the maximum number of boomerang lock-on targets from 5 to 10.",
+  )
   invert_camera_x_axis: bool = option(
     default=False,
     permalink=False,

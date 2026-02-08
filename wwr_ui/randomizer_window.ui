@@ -1347,6 +1347,13 @@
                 </widget>
                </item>
                <item>
+                <widget class="QCheckBox" name="increase_boomerang_targets">
+                 <property name="text">
+                  <string>Increase boomerang targets</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
                 <spacer name="verticalSpacer_qol">
                  <property name="orientation">
                   <enum>Qt::Orientation::Vertical</enum>

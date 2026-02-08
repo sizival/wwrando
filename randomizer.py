@@ -309,6 +309,8 @@ class WWRandomizer:
         tweaks.make_sail_behave_like_swift_sail(self)
       if self.options.reveal_full_sea_chart:
         patcher.apply_patch(self, "reveal_sea_chart")
+      if self.options.increase_boomerang_targets:
+        patcher.apply_patch(self, "boomerang_10_targets")
       if self.options.invert_camera_x_axis:
         patcher.apply_patch(self, "invert_camera_x_axis")
       if self.options.invert_sea_compass_x_axis:
