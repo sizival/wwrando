@@ -5,6 +5,8 @@ if TYPE_CHECKING:
 
 from gclib.bti import BTI
 from gclib.j3d import BDL
+from gclib.rarc import RARC
+from PIL import Image
 
 import re
 import os
@@ -386,6 +388,33 @@ def add_ganons_tower_warp_to_ff2(self: WWRandomizer):
   layer_1_warp.z_rot = layer_2_warp.z_rot
   layer_1_warp.enemy_number = layer_2_warp.enemy_number
   
+  dzx.save_changes()
+
+def make_forsaken_fortress_sector_dark_and_stormy(self: WWRandomizer):
+  # Force sea Room1 (Forsaken Fortress sector) to always use a stormy dark weather volume.
+  # This uses kytag00 directly so the effect overrides sea-stage dynamic weather logic.
+  # Increase only the storm's horizontal range.
+  dzx = self.get_arc("files/res/Stage/sea/Room1.arc").get_file("room.dzr", DZx)
+
+  weather_tag = dzx.add_entity(SCOB)
+  weather_tag.name = "kytag00"
+  weather_tag.colo_entry_index = 1 # Dark weather palette.
+  weather_tag.effect_type = 9 # Heavy rain + thunder + mist.
+  weather_tag.fade_radius = 20
+  weather_tag.fade_height = 20
+  weather_tag.x_pos = -300000.0
+  weather_tag.y_pos = 0.0
+  weather_tag.z_pos = -300000.0
+  weather_tag.x_rot = 0
+  weather_tag.y_rot = 0
+  weather_tag.z_rot = 0
+  weather_tag.switch_to_check = 0xFF # Always active.
+  weather_tag.invert_position_checks = 0
+  weather_tag.unknown_param_7 = 0
+  weather_tag.scale_x = 128
+  weather_tag.scale_y = 10
+  weather_tag.scale_z = 128
+
   dzx.save_changes()
 
 def add_chest_in_place_medli_grappling_hook_gift(self: WWRandomizer):
@@ -1317,6 +1346,59 @@ def add_chart_number_to_item_get_messages(self: WWRandomizer):
     elif item_name.startswith("Triforce Chart ") and "deciphered" not in item_name:
       msg = self.bmg.messages_by_id[101 + item_id]
       msg.string = msg.string.replace("a \\{1A 06 FF 00 00 01}Triforce Chart", "\\{1A 06 FF 00 00 01}%s" % item_name)
+
+def rename_iron_boots_to_water_boots_in_pause_menu(self: WWRandomizer):
+  # Iron Boots name text used by the item menu/pause screen.
+  self.bmg.messages_by_id[0x01A7].string = "Water Boots"
+
+def apply_water_boots_visual_assets(self: WWRandomizer):
+  water_boots_dir = os.path.abspath(os.path.join(ASSETS_PATH, "..", "..", "water-boots"))
+  
+  source_link_arc_path = os.path.join(water_boots_dir, "Link.arc")
+  vboot_arc_path = os.path.join(water_boots_dir, "Vboot.arc")
+  icon_path = os.path.join(ASSETS_PATH, "water boots icon.png")
+  
+  for required_path in [source_link_arc_path, vboot_arc_path, icon_path]:
+    if not os.path.isfile(required_path):
+      raise Exception("Missing required Water Boots asset: %s" % required_path)
+  
+  # Pull model files from the provided Link.arc so all linked model data matches.
+  with open(source_link_arc_path, "rb") as f:
+    source_link_arc = RARC(BytesIO(f.read()))
+  source_hboots = source_link_arc.get_file_entry("hboots.bdl")
+  if source_hboots is None:
+    raise Exception("Could not find hboots.bdl in %s" % source_link_arc_path)
+  
+  link_arc = self.get_arc("files/res/Object/Link.arc")
+  hboots_file_entry = link_arc.get_file_entry("hboots.bdl")
+  if hboots_file_entry is None:
+    raise Exception("Could not find hboots.bdl in files/res/Object/Link.arc")
+  hboots_file_entry.data = BytesIO(fs.read_all_bytes(source_hboots.data))
+  
+  # The custom Water Boots model set also modifies cl.bdl; copy it for vanilla Link to ensure boots render correctly.
+  if getattr(self, "custom_model_name", "Link") == "Link":
+    source_cl = source_link_arc.get_file_entry("cl.bdl")
+    target_cl = link_arc.get_file_entry("cl.bdl")
+    if source_cl is None or target_cl is None:
+      raise Exception("Could not find cl.bdl while applying Water Boots Link model assets.")
+    target_cl.data = BytesIO(fs.read_all_bytes(source_cl.data))
+  
+  # Replace the item/field model arc used by Iron Boots item resources.
+  with open(vboot_arc_path, "rb") as f:
+    custom_vboot_arc_data = BytesIO(f.read())
+  self.replace_arc("files/res/Object/Vboot.arc", custom_vboot_arc_data)
+  
+  # Replace both icon variants used by the pause/inventory UI.
+  itemicon_arc = self.get_arc("files/res/Msg/itemicon.arc")
+  icon_image = Image.open(icon_path).convert("RGBA")
+  if icon_image.size != (48, 48):
+    icon_image = icon_image.resize((48, 48), Image.LANCZOS)
+  for icon_file_name in ["boots_00.bti", "boots_01.bti"]:
+    icon = itemicon_arc.get_file(icon_file_name, BTI)
+    if icon is None:
+      raise Exception("Could not find %s in files/res/Msg/itemicon.arc" % icon_file_name)
+    icon.replace_image(icon_image)
+    icon.save_changes()
 
 
 # Speeds up the grappling hook significantly to behave similarly to HD
@@ -3107,3 +3189,104 @@ def set_should_shorten_mail_minigame(self: WWRandomizer):
   shorten_address = self.main_custom_symbols["should_shorten_mail_minigame"]
   if self.options.shorten_mail_minigame:
     self.dol.write_data(fs.write_u8, shorten_address, 1)
+
+def move_phantom_ganon_to_ocean(self: WWRandomizer):
+  # Move the Phantom Ganon fight from inside the Forsaken Fortress structure to open water
+  # within the same sea sector (Room 1). The defeat switch (0x2A) and chest remain unchanged,
+  # so the original chest still spawns at its location near the FF structure after PG is defeated.
+
+  # --- Relocate the ACTR position ---
+
+  dzx = self.get_arc("files/res/Stage/sea/Room1.arc").get_file("room.dzr", DZx)
+
+  layer_1_actors = dzx.entries_by_type_and_layer(ACTR, layer=DZxLayer.Layer1)
+  fganon = next(x for x in layer_1_actors if x.name == "Fganon")
+
+  # Original ACTR position (vanilla): (-299893.0, 713.0, -303662.0)
+  ORIGINAL_HOME = (-299893.0, 713.0, -303662.0)
+  NEW_HOME = (-325000.0, 0.0, -275000.0)
+
+  fganon.x_pos = NEW_HOME[0]
+  fganon.y_pos = NEW_HOME[1]
+  fganon.z_pos = NEW_HOME[2]
+
+  dzx.save_changes()
+
+  # --- Relativize demo_camera() hardcoded coordinates ---
+  # The cutscene code in d_a_fganon has absolute world coordinates for camera positions,
+  # player placement, and PG placement, all designed for the FF interior. We shift them
+  # by the delta between new and original home positions so the cutscene plays correctly
+  # at the new ocean location.
+
+  delta_x = NEW_HOME[0] - ORIGINAL_HOME[0]  # -25107.0
+  delta_y = NEW_HOME[1] - ORIGINAL_HOME[1]  # -713.0
+  delta_z = NEW_HOME[2] - ORIGINAL_HOME[2]  # 28662.0
+  PLAYER_CUTSCENE_Y_OFFSET = 60.0 # Keep Link out of swimming state when the cutscene starts.
+
+  rel = self.get_rel("files/rels/d_a_fganon.rel")
+
+  # The float constants are in the REL's .rodata section (section 4, file offset 0xA890).
+  # Each constant is referenced by its offset from the .rodata base (r29 in the disassembly).
+  RODATA_BASE = 0xA890
+
+  def patch_float(rodata_offset, delta):
+    rel_offset = RODATA_BASE + rodata_offset
+    old_val = rel.read_data(fs.read_float, rel_offset)
+    rel.write_data(fs.write_float, rel_offset, old_val + delta)
+
+  # Intro cutscene - State 2 (plays every frame during intro):
+  # Player position: (-300306, 715, -303407)
+  patch_float(0xC4, delta_x)  # -300306.0 → player X
+  patch_float(0xC8, delta_y + PLAYER_CUTSCENE_Y_OFFSET)  # 715.0 → player Y (also reused in state 51 for PG Y and player Y)
+  patch_float(0xCC, delta_z)  # -303407.0 → player Z
+  # Camera target: (-300319, 812, -303342)
+  patch_float(0xD0, delta_x)  # -300319.0 → camera target X
+  patch_float(0xD4, delta_y)  # 812.0 → camera target Y
+  patch_float(0xD8, delta_z)  # -303342.0 → camera target Z
+  # Camera eye: (-300440, 787, -303137)
+  patch_float(0xDC, delta_x)  # -300440.0 → camera eye X
+  patch_float(0xE0, delta_y)  # 787.0 → camera eye Y
+  patch_float(0xE4, delta_z)  # -303137.0 → camera eye Z
+
+  # Intro cutscene - State 2→3 transition:
+  # PG placement: (-300294, 745, -303109) stored as (Z, Y, X) in .rodata
+  patch_float(0xE8, delta_z)  # -303109.0 → PG Z
+  patch_float(0xEC, delta_y)  # 745.0 → PG Y
+  patch_float(0xF0, delta_x)  # -300294.0 → PG X
+  # Camera eye: (-300169, 770, -303635) stored as (Z, Y, X)
+  patch_float(0xF4, delta_z)  # -303635.0 → camera eye Z
+  patch_float(0xF8, delta_y)  # 770.0 → camera eye Y
+  patch_float(0xFC, delta_x)  # -300169.0 → camera eye X
+
+  # Intro cutscene - State 3 (camera drift targets):
+  # Camera eye drifts toward: (-300269, 870, -303335)
+  patch_float(0x104, delta_x)  # -300269.0 → camera eye X target
+  patch_float(0x108, delta_y)  # 870.0 → camera eye Y target
+  patch_float(0x10C, delta_z)  # -303335.0 → camera eye Z target
+
+  # Defeat cutscene - State 51 (PG position, reused in state 52 for player position):
+  # PG/player placement: (-300202, 715, -301859)
+  patch_float(0x11C, delta_x)  # -300202.0 → PG/player X
+  # Y (715.0) shares the constant at 0xC8, already patched above
+  patch_float(0x120, delta_z)  # -301859.0 → PG/player Z
+
+  # Defeat cutscene - State 51 lookUp (camera target and eye):
+  # Camera target: (-299898, 1188, -301158)
+  patch_float(0x134, delta_x)  # -299898.0 → camera target X
+  patch_float(0x138, delta_y)  # 1188.0 → camera target Y
+  patch_float(0x13C, delta_z)  # -301158.0 → camera target Z
+  # Camera eye: (-299703, 921, -300851) — also reused in state 53 after mB56==30
+  patch_float(0x140, delta_x)  # -299703.0 → camera eye X
+  patch_float(0x144, delta_y)  # 921.0 → camera eye Y
+  patch_float(0x148, delta_z)  # -300851.0 → camera eye Z
+
+  # Defeat cutscene - State 53 (camera target and eye):
+  # Camera target: (-300098, 580, -301997)
+  patch_float(0x14C, delta_x)  # -300098.0 → camera target X
+  patch_float(0x150, delta_y)  # 580.0 → camera target Y
+  patch_float(0x154, delta_z)  # -301997.0 → camera target Z
+  # Camera eye: (-300274, 929, -301770)
+  patch_float(0x158, delta_x)  # -300274.0 → camera eye X
+  patch_float(0x15C, delta_y)  # 929.0 → camera eye Y
+  patch_float(0x160, delta_z)  # -301770.0 → camera eye Z
+

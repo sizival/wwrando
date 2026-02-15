@@ -325,6 +325,14 @@ magtail_respawn_when_head_light_arrowed:
 ; Fixes Phantom Ganon 1's hardcoded fight trigger region in FF2 to check Link's Y position.
 ; This is so it doesn't trigger when the player is much higher than Phantom Ganon, and is trying to go fight Helmaroc.
 .open "files/rels/d_a_fganon.rel"
+.org 0x4DEC ; In standby__FP12fganon_class
+  ; Increase XZ trigger radius multiplier from 10.0 to 50.0 (m2BD * 10.0 -> m2BD * 50.0).
+  lfs f2, 0x50 (r30)
+
+.org 0x4FC0 ; In start__FP12fganon_class
+  ; Increase XZ trigger radius multiplier from 10.0 to 50.0 (m2BD * 10.0 -> m2BD * 50.0).
+  lfs f2, 0x50 (r31)
+
 .org 0x4F50
   b phantom_ganon_check_link_within_y_diff
 

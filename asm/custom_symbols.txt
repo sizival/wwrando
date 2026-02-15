@@ -110,6 +110,20 @@ sys/main.dol:
   test_room_spawn_id: 0x800531E3
   test_room_room_index: 0x800531E7
   test_room_override_layer_num: 0x800531EB
+  water_boots_groundcheck_wrapper: 0x803FF06C
+  water_boots_change_swim_wrapper: 0x803FF090
+  water_boots_toggle_wrapper: 0x803FF0B4
+  water_boots_item_change_groundcheck_wrapper: 0x803FF0F8
+  water_boots_meter_button_mode_wrapper: 0x803FF120
+  water_boots_item_change_modeflag_wrapper: 0x803FF178
+  water_boots_meter_swim_graycheck_wrapper: 0x803FF1F4
+  water_boots_meter_force_allow_wrapper: 0x803FF248
+  water_boots_walk_speed_wrapper: 0x803FF274
+  water_boots_visual_check_setbootsmodel: 0x803FF2D4
+  water_boots_visual_check_setitemmodel: 0x803FF2F0
+  water_boots_visual_check_draw: 0x803FF30C
+  write_walk_on_water_ram_value: 0x803FF328
+  water_boots_active: 0x803FF33C
 files/rels/d_a_auction.rel:
   custom_getItemNo: 0x49F8
   auction_event_bits: 0x4AB8
@@ -130,6 +144,13 @@ files/rels/d_a_mt.rel:
 files/rels/d_a_fganon.rel:
   phantom_ganon_check_link_within_y_diff: 0xB020
   check_ganons_tower_chest_opened: 0xB03C
+  ocean_down_mode1_ground_check: 0xB064
+  ocean_down_groundcross_gate: 0xB09C
+  ocean_down_surface_clamp: 0xB0B4
+  fganon_demo_prepare_player_for_case50: 0xB0E8
+  fganon_demo_clear_ship_swim_status_core: 0xB0F8
+  fganon_demo_clear_ship_swim_status_case51: 0xB118
+  fganon_demo_clear_ship_swim_status_case52: 0xB124
 files/rels/d_a_bdk.rel:
   initialize_helmaroc_king_landing_timer: 0xEA88
   check_helmaroc_king_landing_timeout: 0xEA98

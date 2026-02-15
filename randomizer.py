@@ -395,6 +395,8 @@ class WWRandomizer:
     patcher.apply_patch(self, "remove_cutscenes")
     patcher.apply_patch(self, "flexible_item_locations")
     patcher.apply_patch(self, "fix_vanilla_bugs")
+    patcher.apply_patch(self, "ocean_phantom_ganon")
+    patcher.apply_patch(self, "water_boots")
     patcher.apply_patch(self, "misc_rando_features")
     tweaks.add_custom_actor_rels(self)
     tweaks.skip_wakeup_intro_and_start_at_dock(self)
@@ -405,6 +407,8 @@ class WWRandomizer:
     tweaks.remove_forsaken_fortress_2_cutscenes(self)
     tweaks.make_items_progressive(self)
     tweaks.add_ganons_tower_warp_to_ff2(self)
+    tweaks.make_forsaken_fortress_sector_dark_and_stormy(self)
+    tweaks.move_phantom_ganon_to_ocean(self)
     tweaks.add_chest_in_place_medli_grappling_hook_gift(self)
     tweaks.add_chest_in_place_queen_fairy_cutscene(self)
     #tweaks.add_cube_to_earth_temple_first_room(self)
@@ -421,6 +425,7 @@ class WWRandomizer:
     tweaks.remove_makar_kidnapping_event(self)
     tweaks.increase_player_movement_speeds(self)
     tweaks.add_chart_number_to_item_get_messages(self)
+    tweaks.rename_iron_boots_to_water_boots_in_pause_menu(self)
     tweaks.increase_grapple_animation_speed(self)
     tweaks.increase_block_moving_animation(self)
     tweaks.increase_misc_animations(self)
@@ -477,6 +482,7 @@ class WWRandomizer:
     tweaks.change_starting_clothes(self)
     tweaks.check_hide_ship_sail(self)
     customizer.change_player_custom_colors(self)
+    tweaks.apply_water_boots_visual_assets(self)
   
   def apply_necessary_post_randomization_tweaks(self):
     if self.options.add_shortcut_warps_between_dungeons:
