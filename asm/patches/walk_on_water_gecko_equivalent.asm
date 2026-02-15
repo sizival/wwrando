@@ -1,0 +1,65 @@
+; Exact translation of the provided Gecko code into project ASM patch format.
+; Addressing here uses virtual addresses in sys/main.dol (same as Gecko 04 writes).
+
+.open "sys/main.dol"
+
+; Gecko:
+; 04004010 2C070003
+; 04004014 C01EFFA0
+; 04004018 4182000C
+; 0400401C C01F008C
+; 04004020 4809EF60
+; 04004024 FC16A840
+; 04004028 C2DEFFA4
+; 0400402C 4182FFF0
+; 04004030 4809EF54
+.org 0x80004010
+  .int 0x2C070003
+  .int 0xC01EFFA0
+  .int 0x4182000C
+  .int 0xC01F008C
+  .int 0x4809EF60
+  .int 0xFC16A840
+  .int 0xC2DEFFA4
+  .int 0x4182FFF0
+  .int 0x4809EF54
+
+; Gecko:
+; 04004048 281E5787
+; 0400404C 4081001C
+; 04004050 FC010040
+; 04004054 4080000C
+; 04004058 D2BEFFA0
+; 0400405C 4800000C
+; 04004060 C2DEFF9C
+; 04004064 D03EFFA0
+; 04004068 EC210028
+; 0400406C 48138FB8
+.org 0x80004048
+  .int 0x281E5787
+  .int 0x4081001C
+  .int 0xFC010040
+  .int 0x4080000C
+  .int 0xD2BEFFA0
+  .int 0x4800000C
+  .int 0xC2DEFF9C
+  .int 0xD03EFFA0
+  .int 0xEC210028
+  .int 0x48138FB8
+
+; Gecko:
+; 043C5E44 04071987
+.org 0x803C5E44
+  .int 0x04071987
+
+; Gecko:
+; 040A2F7C 4BF61094
+.org 0x800A2F7C
+  .int 0x4BF61094
+
+; Gecko:
+; 0413D020 4BEC7028
+.org 0x8013D020
+  .int 0x4BEC7028
+
+.close
