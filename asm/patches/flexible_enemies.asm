@@ -227,6 +227,18 @@ moblin_set_death_switch_return:
 
 
 
+; Make moblins always drop their weapon when knocked down (matching bokoblin behavior).
+; In vanilla, the knockdown damage handler does: if (cM_rndF(1.0f) < 0.5f) { mSpawnWeaponActor = 1; }
+; The bge at 0xAF94 skips the weapon-drop store when the random float is >= 0.5 (50% skip).
+; NOPing this branch makes execution always fall through to the weapon-drop store at 0xAF98.
+.open "files/rels/d_a_mo2.rel"
+.org 0xAF94
+  nop ; Was: bge 0xafa0 (40 80 00 0c) — skipped weapon drop 50% of the time
+.close
+
+
+
+
 ; Make sure Stalfos always set their death switch and temporary actor death flag when dying.
 ; In vanilla they didn't set these flags when dying from falling a large distance (4000+ units).
 .open "files/rels/d_a_st.rel" ; Stalfos
