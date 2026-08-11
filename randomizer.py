@@ -23,8 +23,7 @@ from gclib.gcm import GCM
 from gclib.jpc import JPC100
 import tweaks
 from asm import patcher
-from logic.item_types import DUNGEON_BIG_KEYS, DUNGEON_SMALL_KEYS
-from logic.logic import Logic
+from logic.logic import Logic, TooFewProgressionLocationsError
 from logic.tricks import ALL_TRICK_NAMES
 from wwlib.charts import ChartList
 from wwrando_paths import DATA_PATH, ASM_PATH, IS_RUNNING_FROM_SOURCE, SEEDGEN_PATH
@@ -33,7 +32,7 @@ from wwlib import stage_searcher
 from asm import disassemble
 from asm import elf2rel
 
-from options.wwrando_options import DungeonItemShuffleMode, Options, SwordMode, SeaCompanion
+from options.wwrando_options import Options, SwordMode, SeaCompanion
 from wwr_ui.inventory import REGULAR_ITEMS, PROGRESSIVE_ITEMS, BOSS_SOUL_ITEMS
 from packedbits import PackedBitsReader, PackedBitsWriter
 import base64
@@ -61,7 +60,6 @@ from randomizers.extra_starting_items import ExtraStartingItemsRandomizer
 
 from version import VERSION, VERSION_WITHOUT_COMMIT
 
-class TooFewProgressionLocationsError(Exception): pass
 class InvalidCleanISOError(Exception): pass
 class PermalinkWrongVersionError(Exception): pass
 class PermalinkWrongCommitError(Exception): pass
@@ -225,38 +223,8 @@ class WWRandomizer:
     
     self.logic.initialize_from_randomizer_state()
     
-    num_progress_locations = self.logic.get_num_progression_locations()
-    max_required_bosses_banned_locations = self.logic.get_max_required_bosses_banned_locations()
     self.all_randomized_progress_items = self.logic.unplaced_progress_items.copy()
-    num_progress_items = len(self.all_randomized_progress_items)
-    
-    # If sunken treasure locations are progression, we need to take into account locations that are excluded and adjust the progress item count.
-    if options.progression_triforce_charts or options.progression_treasure_charts:
-      num_charts_excluded = self.logic.get_num_charts_excluded()
-      if options.randomize_charts:
-        max_sunken_treasure_locations = 0
-        if options.progression_triforce_charts:
-          max_sunken_treasure_locations += 8
-        if options.progression_treasure_charts:
-          max_sunken_treasure_locations += 41
-        num_progress_items -= max(0, max_sunken_treasure_locations + num_charts_excluded - 49)
-    
-    # Items going into starting inventory via START_WITH won't need locations.
-    if self.options.shuffle_small_keys == DungeonItemShuffleMode.START_WITH:
-      for key in set(DUNGEON_SMALL_KEYS):
-        num_progress_items -= self.all_randomized_progress_items.count(key)
-    if self.options.shuffle_big_keys == DungeonItemShuffleMode.START_WITH:
-      for key in set(DUNGEON_BIG_KEYS):
-        num_progress_items -= self.all_randomized_progress_items.count(key)
-    
-    if num_progress_locations - max_required_bosses_banned_locations < num_progress_items:
-      error_message = "Not enough progress locations to place all progress items.\n\n"
-      error_message += "Total progress items: %d\n" % num_progress_items
-      error_message += "Progress locations with current options: %d\n" % num_progress_locations
-      if max_required_bosses_banned_locations > 0:
-        error_message += "Maximum Required Bosses Mode banned locations: %d\n" % max_required_bosses_banned_locations
-      error_message += "\nYou need to check more of the progress location options in order to give the randomizer enough space to place all the items."
-      raise TooFewProgressionLocationsError(error_message)
+    self.logic.check_enough_progression_locations()
     
     # We need to determine if the user's selected options result in a dungeons-only-start.
     # Dungeons-only-start meaning that the only locations accessible at the start of the run are dungeon locations.

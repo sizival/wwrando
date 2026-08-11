@@ -26,6 +26,7 @@ from wwrando_paths import LOGIC_PATH
 from randomizers import entrances
 from options.wwrando_options import Options, SwordMode, DungeonItemShuffleMode
 
+class TooFewProgressionLocationsError(Exception): pass
 class Logic:
   DUNGEON_NAMES = {
     "DRC" : "Dragon Roost Cavern",
@@ -53,6 +54,36 @@ class Logic:
     self.item_locations = Logic.load_and_parse_item_locations()
     self.load_and_parse_macros()
     
+    self.nested_entrance_macros: dict[str, str] = {}
+    self.prerandomization_item_locations = {}
+    
+    self.triforce_chart_names = []
+    self.treasure_chart_names = []
+    for i in range(1, 8+1):
+      self.triforce_chart_names.append("Triforce Chart %d" % i)
+    for i in range(1, 41+1):
+      self.treasure_chart_names.append("Treasure Chart %d" % i)
+
+    self.all_cleaned_item_names = []
+    self.unplaced_progress_items: list[str]
+    self.unplaced_nonprogress_items: list[str]
+    self.unplaced_fixed_consumable_items: list[str]
+    self.currently_owned_items: list[str] = []
+    
+    # These are re-initialized in initialize_from_randomizer_state, but must exist beforehand
+    # because HintsRandomizer.__init__ reads all_progress_items before that method runs.
+    self.all_progress_items = PROGRESS_ITEMS.copy()
+    self.all_nonprogress_items = NONPROGRESS_ITEMS.copy()
+    self.all_fixed_consumable_items = CONSUMABLE_ITEMS.copy()
+    self.duplicatable_consumable_items = DUPLICATABLE_CONSUMABLE_ITEMS.copy()
+    
+    if self.rando.fully_initialized:
+      self.initialize_from_randomizer_state()
+  
+  def initialize_from_randomizer_state(self):
+    # Reload item locations
+    self.item_locations = Logic.load_and_parse_item_locations()
+
     # Remove Blue ChuChu locations when their shuffle is disabled.
     if not self.options.progression_blue_chu_jellies:
       locs_to_remove = [
@@ -61,18 +92,15 @@ class Logic:
       ]
       for loc in locs_to_remove:
         del self.item_locations[loc]
-    
-    self.nested_entrance_macros: dict[str, str] = {}
-    
+
     self.locations_by_zone_name: dict[str, list] = {}
     for location_name in self.item_locations:
       zone_name, _ = self.split_location_name_by_zone(location_name)
       if zone_name not in self.locations_by_zone_name:
         self.locations_by_zone_name[zone_name] = []
       self.locations_by_zone_name[zone_name].append(location_name)
-    
+
     self.remaining_item_locations = list(self.item_locations.keys())
-    self.prerandomization_item_locations = {}
     
     self.done_item_locations: dict[str, str | None] = {}
     for location_name in self.item_locations:
@@ -100,8 +128,7 @@ class Logic:
     for location_name in self.item_locations:
       if location_name.startswith("Rock Spire Isle - Beedle's Special Shop Ship - "):
         self.rock_spire_shop_ship_locations.append(location_name)
-    
-    
+
     # Initialize item related attributes.
     self.all_progress_items = PROGRESS_ITEMS.copy()
     self.all_nonprogress_items = NONPROGRESS_ITEMS.copy()
@@ -114,14 +141,7 @@ class Logic:
       if "Rupee" in types:
         vanilla_item = self.item_locations[location_name]["Original item"]
         self.all_fixed_consumable_items.append(vanilla_item)
-    
-    self.triforce_chart_names = []
-    self.treasure_chart_names = []
-    for i in range(1, 8+1):
-      self.triforce_chart_names.append("Triforce Chart %d" % i)
-    for i in range(1, 41+1):
-      self.treasure_chart_names.append("Treasure Chart %d" % i)
-    
+
     if self.options.sword_mode == SwordMode.SWORDLESS:
       self.all_progress_items = [
         item_name for item_name in self.all_progress_items
@@ -171,15 +191,6 @@ class Logic:
       if cleaned_item_name not in self.all_cleaned_item_names:
         self.all_cleaned_item_names.append(cleaned_item_name)
     
-    self.unplaced_progress_items: list[str]
-    self.unplaced_nonprogress_items: list[str]
-    self.unplaced_fixed_consumable_items: list[str]
-    self.currently_owned_items: list[str] = []
-    
-    if self.rando.fully_initialized:
-      self.initialize_from_randomizer_state()
-  
-  def initialize_from_randomizer_state(self):
     self.nested_entrance_macros.clear()
     for zone_entrance in entrances.ZoneEntrance.all.values():
       if zone_entrance.is_nested:
@@ -1515,3 +1526,37 @@ class Logic:
         subset_item_combo, orig_req_expression,
         matched_combos, checked_combos,
       )
+
+  def check_enough_progression_locations(self):
+    num_progress_locations = self.get_num_progression_locations()
+    max_required_bosses_banned_locations = self.get_max_required_bosses_banned_locations()
+    all_randomized_progress_items = self.unplaced_progress_items.copy()
+    num_progress_items = len(all_randomized_progress_items)
+
+    # If sunken treasure locations are progression, we need to take into account locations that are excluded and adjust the progress item count.
+    if self.options.progression_triforce_charts or self.options.progression_treasure_charts:
+      num_charts_excluded = self.get_num_charts_excluded()
+      if self.options.randomize_charts:
+        max_sunken_treasure_locations = 0
+        if self.options.progression_triforce_charts:
+          max_sunken_treasure_locations += 8
+        if self.options.progression_treasure_charts:
+          max_sunken_treasure_locations += 41
+        num_progress_items -= max(0, max_sunken_treasure_locations + num_charts_excluded - 49)
+
+    # Items going into starting inventory via START_WITH won't need locations.
+    if self.options.shuffle_small_keys == DungeonItemShuffleMode.START_WITH:
+      for key in set(DUNGEON_SMALL_KEYS):
+        num_progress_items -= all_randomized_progress_items.count(key)
+    if self.options.shuffle_big_keys == DungeonItemShuffleMode.START_WITH:
+      for key in set(DUNGEON_BIG_KEYS):
+        num_progress_items -= all_randomized_progress_items.count(key)
+
+    if num_progress_locations - max_required_bosses_banned_locations < num_progress_items:
+      error_message = "Not enough progress locations to place all progress items.\n\n"
+      error_message += "Total progress items: %d\n" % num_progress_items
+      error_message += "Progress locations with current options: %d\n" % num_progress_locations
+      if max_required_bosses_banned_locations > 0:
+        error_message += "Maximum Required Bosses Mode banned locations: %d\n" % max_required_bosses_banned_locations
+      error_message += "\nYou need to check more of the progress location options in order to give the randomizer enough space to place all the items."
+      raise TooFewProgressionLocationsError(error_message)
