@@ -4,6 +4,12 @@ from enum import StrEnum
 from options.base_options import BaseOptions, option
 
 from logic.tricks import ALL_TRICK_NAMES
+from .randomized.data import RANDOM_SETTINGS_PRESETS, WEIGHT_DATA as RANDOM_SETTINGS_DATA
+
+RandomSettingsPreset = StrEnum(
+  "RandomSettingsPreset",
+  {k.upper(): v for k,v in RANDOM_SETTINGS_PRESETS.items()},
+)
 
 class DungeonItemShuffleMode(StrEnum):
   VANILLA = "Vanilla"
@@ -51,7 +57,24 @@ class Options(BaseOptions):
     
     if self.hoho_hints and self.hoho_hint_shards:
       self.hoho_hint_shards = False
-    
+
+  #region Random settings
+  # Needs to be first for permalink calculation
+  randomize_settings: bool = option(
+    default=False,
+    description="Randomize which settings are enabled.<br>"
+    "When this option is enabled, most other randomization and progression options are disabled, and their value is instead selected randomly by the chosen seed.",
+  )
+  random_settings_preset: RandomSettingsPreset = option(
+    default=next(iter(RANDOM_SETTINGS_PRESETS.values())),
+    description="Choose style of random settings.<br> This determines which settings are randomized and what probability each option has to be enabled",
+    choice_descriptions={
+      RandomSettingsPreset(entry.get("name", ident)): entry.get("description", "")
+      for ident, entry in RANDOM_SETTINGS_DATA.items()
+    },
+  )
+  #endregion Random settings
+
   #region Progress locations
   progression_dungeons: bool = option(
     default=True,
@@ -665,6 +688,10 @@ class Options(BaseOptions):
   korl_hints: bool = option(
     default=True,
     description="Places hints on the King of Red Lions. Talk to the King of Red Lions to get hints.",
+  )
+  stone_tablet_hints: bool = option(
+    default=False,
+    description="Places hints on Stone Tablets. 30 Stone tablets have been added at various places in the game, read them to get hints.",
   )
   num_item_hints: int = option(
     default=0,
