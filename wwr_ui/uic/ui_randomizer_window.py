@@ -1184,6 +1184,12 @@ class Ui_MainWindow(object):
 
         self.gridLayout_7.addLayout(self.layout_num_path_hints, 5, 3, 1, 1)
 
+        self.stone_tablet_hints = QCheckBox(self.hint_options_groupbox)
+        self.stone_tablet_hints.setObjectName(u"stone_tablet_hints")
+        self.stone_tablet_hints.setChecked(False)
+
+        self.gridLayout_7.addWidget(self.stone_tablet_hints, 4, 3, 1, 1)
+
         self.hint_importance = QCheckBox(self.hint_options_groupbox)
         self.hint_importance.setObjectName(u"hint_importance")
 
@@ -1362,6 +1368,46 @@ class Ui_MainWindow(object):
 
 
         self.verticalLayout_9.addWidget(self.additional_advanced_groupbox)
+
+        self.groupBox_random_settings = QGroupBox(self.tab_advanced)
+        self.groupBox_random_settings.setObjectName(u"groupBox_random_settings")
+        self.gridLayout_random_settings = QGridLayout(self.groupBox_random_settings)
+        self.gridLayout_random_settings.setObjectName(u"gridLayout_random_settings")
+        self.randomize_settings = QCheckBox(self.groupBox_random_settings)
+        self.randomize_settings.setObjectName(u"randomize_settings")
+
+        self.gridLayout_random_settings.addWidget(self.randomize_settings, 0, 0, 1, 1)
+
+        self.hbox_random_settings_preset = QHBoxLayout()
+        self.hbox_random_settings_preset.setObjectName(u"hbox_random_settings_preset")
+        self.label_for_random_settings_preset = QLabel(self.groupBox_random_settings)
+        self.label_for_random_settings_preset.setObjectName(u"label_for_random_settings_preset")
+        sizePolicy1.setHeightForWidth(self.label_for_random_settings_preset.sizePolicy().hasHeightForWidth())
+        self.label_for_random_settings_preset.setSizePolicy(sizePolicy1)
+        self.label_for_random_settings_preset.setTextFormat(Qt.MarkdownText)
+
+        self.hbox_random_settings_preset.addWidget(self.label_for_random_settings_preset)
+
+        self.random_settings_preset = QComboBox(self.groupBox_random_settings)
+        self.random_settings_preset.setObjectName(u"random_settings_preset")
+
+        self.hbox_random_settings_preset.addWidget(self.random_settings_preset)
+
+
+        self.gridLayout_random_settings.addLayout(self.hbox_random_settings_preset, 0, 2, 1, 1)
+
+        self.widget_rs_placeholder1 = QWidget(self.groupBox_random_settings)
+        self.widget_rs_placeholder1.setObjectName(u"widget_rs_placeholder1")
+
+        self.gridLayout_random_settings.addWidget(self.widget_rs_placeholder1, 0, 3, 1, 1)
+
+        self.widget_rs_placeholder2 = QWidget(self.groupBox_random_settings)
+        self.widget_rs_placeholder2.setObjectName(u"widget_rs_placeholder2")
+
+        self.gridLayout_random_settings.addWidget(self.widget_rs_placeholder2, 0, 4, 1, 1)
+
+
+        self.verticalLayout_9.addWidget(self.groupBox_random_settings)
 
         self.advanced_spacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
@@ -1575,6 +1621,8 @@ class Ui_MainWindow(object):
         QWidget.setTabOrder(self.add_drops, self.quick_gohma)
         QWidget.setTabOrder(self.quick_gohma, self.do_not_generate_spoiler_log)
         QWidget.setTabOrder(self.do_not_generate_spoiler_log, self.dry_run)
+        QWidget.setTabOrder(self.dry_run, self.randomize_settings)
+        QWidget.setTabOrder(self.randomize_settings, self.random_settings_preset)
 
         self.retranslateUi(MainWindow)
 
@@ -1734,6 +1782,7 @@ class Ui_MainWindow(object):
         self.label_for_num_location_hints.setText(QCoreApplication.translate("MainWindow", u"Location Hints", None))
         self.label_for_num_item_hints.setText(QCoreApplication.translate("MainWindow", u"Item Hints", None))
         self.label_for_num_path_hints.setText(QCoreApplication.translate("MainWindow", u"Path Hints", None))
+        self.stone_tablet_hints.setText(QCoreApplication.translate("MainWindow", u"Place Hints on Stone Tablets", None))
         self.hint_importance.setText(QCoreApplication.translate("MainWindow", u"Hint Importance", None))
         self.hoho_hint_shards.setText(QCoreApplication.translate("MainWindow", u"Old Man Ho Ho Hint Shards", None))
         self.korl_hints_swords.setText(QCoreApplication.translate("MainWindow", u"King of Red Lions in Hyrule Hints Swords", None))
@@ -1765,6 +1814,9 @@ class Ui_MainWindow(object):
         self.additional_advanced_groupbox.setTitle(QCoreApplication.translate("MainWindow", u"Additional Advanced Options", None))
         self.do_not_generate_spoiler_log.setText(QCoreApplication.translate("MainWindow", u"Do Not Generate Spoiler Log", None))
         self.dry_run.setText(QCoreApplication.translate("MainWindow", u"Dry Run", None))
+        self.groupBox_random_settings.setTitle(QCoreApplication.translate("MainWindow", u"Settings Randomizer", None))
+        self.randomize_settings.setText(QCoreApplication.translate("MainWindow", u"Randomize Settings", None))
+        self.label_for_random_settings_preset.setText(QCoreApplication.translate("MainWindow", u"Preset [[Weights]](random_settings_weights)", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_advanced), QCoreApplication.translate("MainWindow", u"Advanced Options", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_player_customization), QCoreApplication.translate("MainWindow", u"Player Customization", None))
         self.option_description.setText("")

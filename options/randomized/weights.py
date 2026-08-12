@@ -84,7 +84,7 @@ class OptionWeight:
 
     @property
     def managed_options(self) -> tuple[Option, ...]:
-        return (Options.by_name[self.name],)
+        return (Options.by_name()[self.name],)
 
     @classmethod
     def from_yaml(cls, yaml_entry, /, section: str) -> "OptionWeight":
@@ -96,7 +96,7 @@ class OptionWeight:
         name = yaml_entry.get("name")
         if not name:
             raise MalformedWeightsFile(f"Entry missing a name: {yaml_entry}", section=section)
-        if not name in Options.by_name:
+        if not name in Options.by_name():
             raise MalformedWeightsFile("Unknown option", name=name, section=section)
 
         if not set(yaml_entry.keys()) <= {"name", "weight", "choices"}:
@@ -133,7 +133,7 @@ class OptionWeight:
                 name=name,
             )
 
-        cls._check_all_choices_are_valid(Options.by_name[name], choices, section=section)
+        cls._check_all_choices_are_valid(Options.by_name()[name], choices, section=section)
 
         return OptionWeight(name=name, choices=choices)
 
@@ -276,12 +276,12 @@ class ChooseMultipleOptionWeight(OptionWeight, characteristic_key="combo"):
         name = yaml_entry.get("name") or "&".join(combo)
 
         for opt in combo:
-            if opt not in Options.by_name:
+            if opt not in Options.by_name():
                 raise MalformedWeightsFile(
-                    f"Unknown option: {next(opt for opt in combo if not opt in Options.by_name)}",
+                    f"Unknown option: {next(opt for opt in combo if not opt in Options.by_name())}",
                     section=section,
                 )
-        combo = tuple(Options.by_name[opt] for opt in combo)
+        combo = tuple(Options.by_name()[opt] for opt in combo)
 
         raw_choices = yaml_entry.get("choices")
         # normalize types
@@ -337,10 +337,10 @@ class ChooseMultipleOptionWeight(OptionWeight, characteristic_key="combo"):
                         section=section,
                     )
             for managed_opt, sel_value in chosen_options.choice.items():
-                opttype = get_origin(Options.by_name[managed_opt].type) or Options.by_name[managed_opt].type
+                opttype = get_origin(Options.by_name()[managed_opt].type) or Options.by_name()[managed_opt].type
                 if not isinstance(sel_value, opttype):
                     try:
-                        Options.by_name[managed_opt].type(sel_value)
+                        Options.by_name()[managed_opt].type(sel_value)
                     except TypeError:
                         raise MalformedWeightsFile(
                             f"Wrong value type {managed_opt}: {sel_value} in combo choice.",
@@ -393,7 +393,7 @@ class DisabledOptionWeight(OptionWeight, characteristic_key="disable"):
         name = yaml_entry.get("name")
         if not name:
             raise MalformedWeightsFile(f"Entry missing a name: {yaml_entry}", section=section)
-        if not name in Options.by_name:
+        if not name in Options.by_name():
             raise MalformedWeightsFile("Unknown option", name=name, section=section)
 
         managed = bool(yaml_entry.get("managed", False))
@@ -472,7 +472,7 @@ class CombinationOptionWeight(OptionWeight, characteristic_key="indiv_weights"):
         name = yaml_entry.get("name")
         if not name:
             raise MalformedWeightsFile(f"Entry missing a name: {yaml_entry}", section=section)
-        if not name in Options.by_name:
+        if not name in Options.by_name():
             raise MalformedWeightsFile("Unknown option", name=name, section=section)
 
         indiv_weights = yaml_entry.get("indiv_weights")
@@ -652,8 +652,8 @@ class DecisionTreeOptionWeight(ChooseMultipleOptionWeight, characteristic_key="t
         # Recognize the ChooseMultiple shorthand for toggles
         if (
             isinstance(elem, Sequence)
-            and all(e in Options.by_name for e in elem)
-            and all(Options.by_name[e].type == bool for e in elem)
+            and all(e in Options.by_name() for e in elem)
+            and all(Options.by_name()[e].type == bool for e in elem)
         ):
             return {opt.name: opt.name in elem for opt in root_opts}
         # No idea how to handle indiv_weights mappings

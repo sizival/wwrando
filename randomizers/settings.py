@@ -17,7 +17,7 @@ class SettingsRandomizer(BaseRandomizer):
     def _randomize(self):
         for _ in range(10):
             self.select_settings()
-            self.rando.starting_items = self.rando.set_starting_items_from_options()
+            self.rando.set_starting_items_from_options()
             try:
                 self.check_for_valid_seed()
                 break
@@ -35,7 +35,7 @@ class SettingsRandomizer(BaseRandomizer):
     def normalize_options(cls, options: Options):
         if options.randomize_settings:
             all_default_values = Options()
-            for option in options.all:
+            for option in options.all():
                 if cls.weights(options.random_settings_preset).is_managed(option):
                     options[option.name] = all_default_values[option.name]
 

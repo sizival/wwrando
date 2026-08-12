@@ -846,7 +846,7 @@ class WWRandomizerWindow(QMainWindow):
     should_enable_options["random_settings_preset"] = self.get_option_value("randomize_settings")
     if self.get_option_value("randomize_settings"):
       weights = self.random_settings_weights[self.get_option_value("random_settings_preset")]
-      for option in Options.all:
+      for option in Options.all():
         if weights.is_managed(option):
           should_enable_options[option.name] = Qt.CheckState.PartiallyChecked
     

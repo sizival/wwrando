@@ -62,8 +62,8 @@ class RSWeightsWindow(QDialog):
         self.build_weight_table(preset, weights)
 
     def format_random_settings_choice(self, choice) -> str:
-        if isinstance(choice, str) and choice in Options.by_name:
-            choice = Options.by_name[choice]
+        if isinstance(choice, str) and choice in Options.by_name():
+            choice = Options.by_name()[choice]
 
         if isinstance(choice, OptionWeight):
             if len(choice.managed_options) == 1:
@@ -136,7 +136,7 @@ class RSWeightsWindow(QDialog):
         self.setWindowTitle(f'Random Settings weights for preset "{preset}"')
         text = f"""
         <h2>{preset}</h2>
-        <p>{Options.by_name["random_settings_preset"].choice_descriptions[preset]}</p><br>
+        <p>{Options.by_name()["random_settings_preset"].choice_descriptions[preset]}</p><br>
         <table><thead><tr>
             <th>Option</th>
             <th>Choices</th>

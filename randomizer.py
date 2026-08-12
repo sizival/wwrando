@@ -109,14 +109,15 @@ class WWRandomizer:
     if cmd_line_args.test:
       self.test_room_args = cmd_line_args.test
     
-    seed_string = self.permalink
-    if self.options.do_not_generate_spoiler_log or (
-      self.options.randomize_settings and SettingsRandomizer.weights(self.options.random_settings_preset).is_managed(Options.by_name["do_not_generate_spoiler_log"])
-    ):
-      seed_string += SEED_KEY
-
     self.permalink = self.encode_permalink(self.seed, self.options, pretend_version=compat_version)
     self.seed_hash = self.get_seed_hash()
+    
+    seed_string = self.permalink
+    if self.options.do_not_generate_spoiler_log or (
+      self.options.randomize_settings and SettingsRandomizer.weights(self.options.random_settings_preset).is_managed(Options.by_name()["do_not_generate_spoiler_log"])
+    ):
+      seed_string += SEED_KEY
+    
     self.integer_seed = self.convert_string_to_integer_md5(seed_string)
     
     self.arcs_by_path: dict[str, RARC] = {}
@@ -203,7 +204,11 @@ class WWRandomizer:
       self.items,
       self.hints,
     ]
-    
+  
+  def init_logic(self):
+    # Everything in here depends on the options, so it must run after the settings randomizer, not
+    # in __init__.
+    self.entrances.init_from_randomizer_state()
     self.logic.initialize_from_randomizer_state()
     
     self.all_randomized_progress_items = self.logic.unplaced_progress_items.copy()
@@ -248,7 +253,7 @@ class WWRandomizer:
     if not self.dry_run:
       max_progress_val += 1800 # Applying pre-randomization tweaks.
   
-    for randomizer in self.randomizers:
+    for randomizer in self.randomizers + [self.random_settings]:
       if randomizer.is_enabled():
         max_progress_val += randomizer.progress_randomize_duration_weight
         if not self.dry_run:
@@ -265,6 +270,14 @@ class WWRandomizer:
   
   def randomize(self):
     progress_completed = 0
+    if self.random_settings.is_enabled():
+      yield("Randomizing settings...", progress_completed)
+      self.random_settings.randomize()
+    progress_completed += self.random_settings.progress_randomize_duration_weight
+    
+    yield("Initializing logic...", progress_completed)
+    self.init_logic()
+    
     yield("Modifying game code...", progress_completed)
     
     # import time
@@ -311,6 +324,10 @@ class WWRandomizer:
         tweaks.set_default_targeting_mode_to_switch(self)
       if self.options.always_double_magic:
         tweaks.set_always_double_magic(self)
+      if self.options.randomize_settings:
+        tweaks.modify_title_screen_logo(self, "subtitle_rs.png")
+      else:
+        tweaks.modify_title_screen_logo(self)
       
       sea_companion = self.options.sea_companion
       if sea_companion == SeaCompanion.RANDOM:
@@ -338,7 +355,8 @@ class WWRandomizer:
     yield("Randomizing...", progress_completed)
     for randomizer in self.randomizers:
       if randomizer.is_enabled():
-        yield(randomizer.progress_randomize_text, progress_completed)
+        if not self.random_settings.is_enabled():
+          yield(randomizer.progress_randomize_text, progress_completed)
         # start = time.perf_counter_ns()
         randomizer.randomize()
         # print(f"{(time.perf_counter_ns()-start)//1_000_000:6d}: {randomizer.__class__.__name__}.randomize")
@@ -348,7 +366,8 @@ class WWRandomizer:
     if not self.dry_run:
       for randomizer in self.randomizers:
         if randomizer.is_enabled():
-          yield(randomizer.progress_save_text, progress_completed)
+          if not self.random_settings.is_enabled():
+            yield(randomizer.progress_save_text, progress_completed)
           # start = time.perf_counter_ns()
           randomizer.save()
           # print(f"{(time.perf_counter_ns()-start)//1_000_000:6d}: {randomizer.__class__.__name__}.save")
@@ -374,6 +393,10 @@ class WWRandomizer:
     yield("Writing logs...", progress_completed)
     if not self.options.do_not_generate_spoiler_log:
       self.write_spoiler_log()
+    if self.randobot:
+      if not SEED_KEY or IS_RUNNING_FROM_SOURCE: # Avoids leaking secrets from release builds
+        self.write_spoiler_log()
+      self.write_randobot_files()
     self.write_non_spoiler_log()
   
   def apply_necessary_tweaks(self):
@@ -401,7 +424,7 @@ class WWRandomizer:
     tweaks.add_chest_in_place_queen_fairy_cutscene(self)
     #tweaks.add_cube_to_earth_temple_first_room(self)
     tweaks.add_more_magic_jars(self)
-    tweaks.modify_title_screen_logo(self)
+    #tweaks.modify_title_screen_logo(self)
     tweaks.update_game_name_icon_and_banners(self)
     tweaks.allow_dungeon_items_to_appear_anywhere(self)
     tweaks.fix_shop_item_y_offsets(self)

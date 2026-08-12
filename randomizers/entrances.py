@@ -250,6 +250,26 @@ class EntranceRandomizer(BaseRandomizer):
     self.zone_exit_to_logically_dependent_item_locations: dict[ZoneExit, list[str]] = defaultdict(list)
     self.register_mappings_between_item_locations_and_zone_exits()
     
+    self.done_entrances_to_exits: dict[ZoneEntrance, ZoneExit] = {}
+    self.done_exits_to_entrances: dict[ZoneExit, ZoneEntrance] = {}
+    
+    self.entrance_names_with_no_requirements: list[str] = []
+    self.exit_names_with_no_requirements: list[str] = []
+    self.nested_entrance_paths: list[list[str]] = []
+    self.nesting_enabled: bool = False
+    
+    self.safety_entrance = None
+    self.banned_exits: list[ZoneExit] = []
+    self.islands_with_a_banned_dungeon: set[str] = set()
+    
+    self.reset_entrance_connections()
+  
+  def reset_entrance_connections(self):
+    """Resets the entrance connections to their vanilla state.
+    
+    Must be called before each randomization attempt, since the settings randomizer can reroll the
+    options and rerun the entrance randomizer on the same instance."""
+    
     # Default entrances connections to be used if the entrance randomizer is not on.
     self.entrance_connections = {
       "Dungeon Entrance on Dragon Roost Island": "Dragon Roost Cavern",
@@ -304,14 +324,24 @@ class EntranceRandomizer(BaseRandomizer):
       "Fairy Fountain Entrance on Northern Fairy Island": "Northern Fairy Fountain",
     }
     
-    self.done_entrances_to_exits: dict[ZoneEntrance, ZoneExit] = {}
-    self.done_exits_to_entrances: dict[ZoneExit, ZoneEntrance] = {}
+  def init_from_randomizer_state(self):
+    # Note: This is called after the settings randomizer has run, so unlike __init__ it can safely
+    # read self.options. It can also be called more than once on the same instance, so everything it
+    # touches must be fully reset here rather than accumulated.
+    self.reset_entrance_connections()
     
+    self.done_entrances_to_exits.clear()
+    self.done_exits_to_entrances.clear()
     for entrance_name, exit_name in self.entrance_connections.items():
       zone_entrance = ZoneEntrance.all[entrance_name]
       zone_exit = ZoneExit.all[exit_name]
       self.done_entrances_to_exits[zone_entrance] = zone_exit
       self.done_exits_to_entrances[zone_exit] = zone_entrance
+    
+    self.nested_entrance_paths = []
+    self.safety_entrance = None
+    self.banned_exits = []
+    self.islands_with_a_banned_dungeon = set()
     
     self.entrance_names_with_no_requirements = []
     self.exit_names_with_no_requirements = []
@@ -330,16 +360,11 @@ class EntranceRandomizer(BaseRandomizer):
       self.exit_names_with_no_requirements += COMBAT_SECRET_CAVE_EXIT_NAMES_WITH_NO_REQUIREMENTS
     # No need to check progression_savage_labyrinth, since neither of the items inside Savage have no requirements.
     
-    self.nested_entrance_paths: list[list[str]] = []
     self.nesting_enabled = any([
       self.options.randomize_miniboss_entrances,
       self.options.randomize_boss_entrances,
       self.options.randomize_secret_cave_inner_entrances,
     ])
-    
-    self.safety_entrance = None
-    self.banned_exits: list[ZoneExit] = []
-    self.islands_with_a_banned_dungeon: set[str] = set()
   
   def is_enabled(self) -> bool:
     return any([

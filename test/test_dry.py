@@ -237,8 +237,9 @@ def test_exclude_all_locations():
   
   options = Options()
   options.excluded_locations = list(Logic.load_and_parse_item_locations().keys())
+  rando = dry_rando_with_options(options)
   with pytest.raises(TooFewProgressionLocationsError):
-    rando = dry_rando_with_options(options)
+    rando.randomize_all()
 
 def test_exclude_insufficient_dungeon_locations():
   locations_to_exclude = [
