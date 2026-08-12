@@ -64,8 +64,18 @@ default_progression:
     - name: progression_dungeon_secrets
       weight: 50%
 
+    # Replaces the old keylunacy toggle. Rolled as one combo so keys stay correlated,
+    # preserving the original 40% odds.
+    # Maps and compasses were also governed by keylunacy, but are pinned to Start With here
+    # instead, so they are never shuffled on this preset.
     - name: keylunacy
-      weight: 40%
+      combo: [shuffle_small_keys, shuffle_big_keys]
+      choices:
+        - !!python/tuple [{ shuffle_small_keys: Anywhere, shuffle_big_keys: Anywhere }, 40%]
+        - !!python/tuple [{ shuffle_small_keys: Own Dungeon, shuffle_big_keys: Own Dungeon }, 60%]
+    - name: shuffle_maps_and_compasses
+      choices:
+        Start With: 1
     - name: randomize_dungeon_entrances
       weight: 50%
     - name: randomize_secret_cave_entrances
@@ -136,6 +146,11 @@ default_progression:
       indiv_weights:
         - !!python/tuple [["Telescope", "Ballad of Gales", "Song of Passing"], "100%"]
         - !!python/tuple [!!python/name:logic.item_types.DUNGEON_NONPROGRESS_ITEMS , "80%"]
+    # Pin the excluded locations so every seed on this preset has the same location pool,
+    # rather than inheriting whatever the player happened to have configured.
+    - name: excluded_locations
+      choices:
+        - !!python/tuple [!!python/name:options.randomized.data.DEFAULT_EXCLUDED_LOCATIONS , 1]
 
 default_both:
   name: Default (Progression & Difficulty)
@@ -285,7 +300,13 @@ guest_ofc2000alex:
       weight: 40%
 
     - name: keylunacy
-      weight: 30%
+      combo: [shuffle_small_keys, shuffle_big_keys]
+      choices:
+        - !!python/tuple [{ shuffle_small_keys: Anywhere, shuffle_big_keys: Anywhere }, 30%]
+        - !!python/tuple [{ shuffle_small_keys: Own Dungeon, shuffle_big_keys: Own Dungeon }, 70%]
+    - name: shuffle_maps_and_compasses
+      choices:
+        Start With: 1
     - name: randomize_dungeon_entrances
       weight: 40%
     - name: randomize_secret_cave_entrances
@@ -474,10 +495,15 @@ pairings:
       choices:
         - !!python/tuple [{ mix_entrances: Separate Dungeons From Caves & Fountains, add_shortcut_warps_between_dungeons: False }, 50%]
         - !!python/tuple [{ mix_entrances: Mix Dungeons & Caves & Fountains, add_shortcut_warps_between_dungeons: True }, 50%]
-    - combo: [keylunacy, randomize_dungeon_entrances]
+    # The bool-shorthand form can't express enums, so this pairing is spelled out explicitly.
+    - name: keys or dungeon entrances
+      combo: [shuffle_small_keys, shuffle_big_keys, randomize_dungeon_entrances]
       choices:
-        !!python/tuple [keylunacy]: 50%
-        !!python/tuple [randomize_dungeon_entrances]: 50%
+        - !!python/tuple [{ shuffle_small_keys: Anywhere, shuffle_big_keys: Anywhere, randomize_dungeon_entrances: False }, 50%]
+        - !!python/tuple [{ shuffle_small_keys: Own Dungeon, shuffle_big_keys: Own Dungeon, randomize_dungeon_entrances: True }, 50%]
+    - name: shuffle_maps_and_compasses
+      choices:
+        Start With: 1
     - name: whatever's left
       tree:
         root:
@@ -552,7 +578,9 @@ season_roulette:
         - progression_eye_reef_chests
         - sword_mode
         - num_starting_triforce_shards
-        - keylunacy
+        - shuffle_small_keys
+        - shuffle_big_keys
+        - shuffle_maps_and_compasses
         - required_bosses
         - num_required_bosses
         - randomize_charts
@@ -613,7 +641,9 @@ season_roulette:
               progression_eye_reef_chests: false,
               sword_mode: Start with Hero's Sword,
               num_starting_triforce_shards: 4,
-              keylunacy: false,
+              shuffle_small_keys: Own Dungeon,
+              shuffle_big_keys: Own Dungeon,
+              shuffle_maps_and_compasses: Own Dungeon,
               required_bosses: true,
               num_required_bosses: 4,
               randomize_charts: false,
@@ -676,7 +706,9 @@ season_roulette:
               progression_eye_reef_chests: false,
               sword_mode: No Starting Sword,
               num_starting_triforce_shards: 0,
-              keylunacy: false,
+              shuffle_small_keys: Own Dungeon,
+              shuffle_big_keys: Own Dungeon,
+              shuffle_maps_and_compasses: Own Dungeon,
               required_bosses: true,
               num_required_bosses: 3,
               randomize_charts: false,
@@ -739,7 +771,9 @@ season_roulette:
               progression_eye_reef_chests: false,
               sword_mode: Start with Hero's Sword,
               num_starting_triforce_shards: 0,
-              keylunacy: false,
+              shuffle_small_keys: Own Dungeon,
+              shuffle_big_keys: Own Dungeon,
+              shuffle_maps_and_compasses: Start With,
               required_bosses: true,
               num_required_bosses: 3,
               randomize_charts: false,
@@ -763,7 +797,6 @@ season_roulette:
                   Progressive Magic Meter,
                   Earth God's Lyric,
                   Wind God's Aria,
-                  !!python/name:logic.item_types.DUNGEON_NONPROGRESS_ITEMS ,
                 ],
               add_shortcut_warps_between_dungeons: true,
               fishmen_hints: false,
@@ -812,7 +845,9 @@ season_roulette:
               progression_eye_reef_chests: false,
               sword_mode: Start with Hero's Sword,
               num_starting_triforce_shards: 0,
-              keylunacy: false,
+              shuffle_small_keys: Own Dungeon,
+              shuffle_big_keys: Own Dungeon,
+              shuffle_maps_and_compasses: Start With,
               required_bosses: true,
               num_required_bosses: 3,
               randomize_charts: false,
@@ -834,7 +869,6 @@ season_roulette:
                   Song of Passing,
                   Earth God's Lyric,
                   Wind God's Aria,
-                  !!python/name:logic.item_types.DUNGEON_NONPROGRESS_ITEMS ,
                 ],
               add_shortcut_warps_between_dungeons: true,
               fishmen_hints: false,
@@ -883,7 +917,9 @@ season_roulette:
               progression_eye_reef_chests: false,
               sword_mode: Start with Hero's Sword,
               num_starting_triforce_shards: 0,
-              keylunacy: false,
+              shuffle_small_keys: Own Dungeon,
+              shuffle_big_keys: Own Dungeon,
+              shuffle_maps_and_compasses: Start With,
               required_bosses: true,
               num_required_bosses: 2,
               randomize_charts: false,
@@ -914,7 +950,6 @@ season_roulette:
                   Progressive Quiver,
                   Progressive Magic Meter,
                   Progressive Magic Meter,
-                  !!python/name:logic.item_types.DUNGEON_NONPROGRESS_ITEMS ,
                 ],
               add_shortcut_warps_between_dungeons: true,
               fishmen_hints: false,
@@ -963,7 +998,9 @@ season_roulette:
               progression_eye_reef_chests: false,
               sword_mode: Start with Hero's Sword,
               num_starting_triforce_shards: 0,
-              keylunacy: false,
+              shuffle_small_keys: Own Dungeon,
+              shuffle_big_keys: Own Dungeon,
+              shuffle_maps_and_compasses: Start With,
               required_bosses: true,
               num_required_bosses: 2,
               randomize_charts: false,
@@ -994,7 +1031,6 @@ season_roulette:
                   Progressive Quiver,
                   Progressive Magic Meter,
                   Progressive Magic Meter,
-                  !!python/name:logic.item_types.DUNGEON_NONPROGRESS_ITEMS ,
                 ],
               add_shortcut_warps_between_dungeons: true,
               fishmen_hints: false,
@@ -1043,7 +1079,9 @@ season_roulette:
               progression_eye_reef_chests: false,
               sword_mode: No Starting Sword,
               num_starting_triforce_shards: 0,
-              keylunacy: false,
+              shuffle_small_keys: Own Dungeon,
+              shuffle_big_keys: Own Dungeon,
+              shuffle_maps_and_compasses: Own Dungeon,
               required_bosses: true,
               num_required_bosses: 3,
               randomize_charts: false,
@@ -1106,7 +1144,9 @@ season_roulette:
               progression_eye_reef_chests: false,
               sword_mode: No Starting Sword,
               num_starting_triforce_shards: 0,
-              keylunacy: false,
+              shuffle_small_keys: Own Dungeon,
+              shuffle_big_keys: Own Dungeon,
+              shuffle_maps_and_compasses: Own Dungeon,
               required_bosses: true,
               num_required_bosses: 3,
               randomize_charts: true,
@@ -1169,7 +1209,9 @@ season_roulette:
               progression_eye_reef_chests: false,
               sword_mode: Swordless,
               num_starting_triforce_shards: 0,
-              keylunacy: false,
+              shuffle_small_keys: Own Dungeon,
+              shuffle_big_keys: Own Dungeon,
+              shuffle_maps_and_compasses: Own Dungeon,
               required_bosses: true,
               num_required_bosses: 3,
               randomize_charts: false,
@@ -1232,7 +1274,9 @@ season_roulette:
               progression_eye_reef_chests: false,
               sword_mode: No Starting Sword,
               num_starting_triforce_shards: 0,
-              keylunacy: false,
+              shuffle_small_keys: Own Dungeon,
+              shuffle_big_keys: Own Dungeon,
+              shuffle_maps_and_compasses: Own Dungeon,
               required_bosses: true,
               num_required_bosses: 3,
               randomize_charts: false,
@@ -1295,7 +1339,9 @@ season_roulette:
               progression_eye_reef_chests: false,
               sword_mode: No Starting Sword,
               num_starting_triforce_shards: 0,
-              keylunacy: true,
+              shuffle_small_keys: Anywhere,
+              shuffle_big_keys: Anywhere,
+              shuffle_maps_and_compasses: Anywhere,
               required_bosses: true,
               num_required_bosses: 4,
               randomize_charts: false,
@@ -1358,7 +1404,9 @@ season_roulette:
               progression_eye_reef_chests: false,
               sword_mode: No Starting Sword,
               num_starting_triforce_shards: 0,
-              keylunacy: false,
+              shuffle_small_keys: Own Dungeon,
+              shuffle_big_keys: Own Dungeon,
+              shuffle_maps_and_compasses: Own Dungeon,
               required_bosses: true,
               num_required_bosses: 3,
               randomize_charts: false,
