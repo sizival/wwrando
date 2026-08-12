@@ -5,6 +5,7 @@ from wwr_ui.qt_init import load_ui_file
 
 from wwr_ui.update_checker import check_for_updates, LATEST_RELEASE_DOWNLOAD_PAGE_URL
 from wwr_ui.inventory import INVENTORY_ITEMS, DEFAULT_STARTING_ITEMS, DEFAULT_RANDOMIZED_ITEMS, BOSS_SOUL_ITEMS
+from wwr_ui.random_settings_weights_window import RSWeightsWindow
 
 import os
 import sys
@@ -17,6 +18,7 @@ from ruamel.yaml.error import YAMLError
 yaml_dumper = YAML(typ="rt") # Use RoundTripDumper for pretty-formatted dumps.
 
 from options.wwrando_options import DungeonItemShuffleMode, Options, SwordMode
+from options.randomized.weight_sets import parse_weight_data as load_random_settings_weights
 from logic.item_types import DUNGEON_MAPS_AND_COMPASSES, DUNGEON_SMALL_KEYS, DUNGEON_BIG_KEYS
 from logic.logic import Logic
 from logic.tricks import ALL_TRICK_NAMES, ALL_TRICKS
@@ -118,7 +120,9 @@ class WWRandomizerWindow(QMainWindow):
     self.default_options.custom_colors = self.ui.tab_player_customization.get_all_colors()
     
     self.load_settings()
-    
+    self.random_settings_weights = load_random_settings_weights()
+    self.ui.label_for_random_settings_preset.linkActivated.connect(self.open_random_settings_weights_popup)
+
     self.ui.starting_pohs.valueChanged.connect(self.update_health_label)
     self.ui.starting_hcs.valueChanged.connect(self.update_health_label)
     
@@ -388,10 +392,9 @@ class WWRandomizerWindow(QMainWindow):
         assert issubclass(option.type, str)
         if widget.objectName() not in ["custom_player_model", "custom_color_preset"]:
           assert issubclass(option.type, StrEnum)
-          assert widget.count() == len(option.type)
-          for i, enum_value in enumerate(option.type):
-            # Make sure the text of each choice in the combobox matches the string enum value of the option.
-            widget.setItemText(i, enum_value.value)
+
+          widget.clear()
+          widget.addItems(list(iter(option.type)))
       elif isinstance(widget, QListView):
         assert issubclass(typing.get_origin(option.type) or option.type, list)
       elif isinstance(widget, QSpinBox):
@@ -473,7 +476,8 @@ class WWRandomizerWindow(QMainWindow):
     for option in Options.all():
       self.settings[option.name] = self.get_option_value(option.name)
     
-    self.save_settings()
+    if not self.cmd_line_args.randobot:
+      self.save_settings()
     
     self.encode_permalink()
     
@@ -838,23 +842,41 @@ class WWRandomizerWindow(QMainWindow):
     
     self.set_option_value("progression_locations", options.progression_locations)
     self.set_option_value("excluded_locations", options.excluded_locations)
+
+    should_enable_options["random_settings_preset"] = self.get_option_value("randomize_settings")
+    if self.get_option_value("randomize_settings"):
+      weights = self.random_settings_weights[self.get_option_value("random_settings_preset")]
+      for option in Options.all:
+        if weights.is_managed(option):
+          should_enable_options[option.name] = Qt.CheckState.PartiallyChecked
     
     for option in Options.all():
       if option.name == "custom_colors":
         continue
       widget = self.findChild(QWidget, option.name)
       label_for_option = self.findChild(QLabel, "label_for_" + option.name)
-      if should_enable_options[option.name]:
+      if should_enable_options[option.name] is True:
+        if isinstance(widget, QCheckBox):
+          widget.setTristate(False)
         widget.setEnabled(True)
         if label_for_option:
           label_for_option.setEnabled(True)
-      else:
+      elif should_enable_options[option.name] is False:
+        if isinstance(widget, QCheckBox):
+          widget.setTristate(False)
         widget.setEnabled(False)
         if isinstance(widget, QAbstractButton):
           widget.setChecked(False)
         if label_for_option:
           label_for_option.setEnabled(False)
-      
+      else:
+        widget.setEnabled(False)
+        if isinstance(widget, QCheckBox):
+          widget.setTristate(True)
+          widget.setCheckState(should_enable_options[option.name])
+        if label_for_option:
+          label_for_option.setEnabled(False)
+
       if option.unbeatable and not IS_RUNNING_FROM_SOURCE:
         # Disable options that produce unbeatable seeds when not running from source.
         if self.get_option_value(option.name):
@@ -869,17 +891,22 @@ class WWRandomizerWindow(QMainWindow):
           widget.hide()
   
   def open_about(self):
-    text = """Wind Waker Randomizer Version %s<br><br>
-      Created by LagoLunatic<br><br>
-      Report issues here:<br><a href=\"https://github.com/LagoLunatic/wwrando/issues\">https://github.com/LagoLunatic/wwrando/issues</a><br><br>
-      Source code:<br><a href=\"https://github.com/LagoLunatic/wwrando\">https://github.com/LagoLunatic/wwrando</a>""" % VERSION
-    
+    text = """WWR Random Settings Version %s<br><br>
+      Created by LagoLunatic, Random Settings changes by tanjo3, natolumin, sizival<br><br>
+      Report issues here:<br><a href=\"https://github.com/sizival/wwrando/issues\">https://github.com/sizival/wwrando/issues</a><br><br>
+      Source code:<br><a href=\"https://github.com/sizival/wwrando\">https://github.com/sizival/wwrando</a>""" % VERSION
+
     self.about_dialog = QMessageBox()
     self.about_dialog.setTextFormat(Qt.TextFormat.RichText)
-    self.about_dialog.setWindowTitle("Wind Waker Randomizer")
+    self.about_dialog.setWindowTitle("WWR Random Settings")
     self.about_dialog.setText(text)
     self.about_dialog.setWindowIcon(self.windowIcon())
     self.about_dialog.show()
+
+  def open_random_settings_weights_popup(self):
+    preset = self.get_option_value("random_settings_preset")
+    dialog = RSWeightsWindow(self, preset, self.random_settings_weights[preset])
+    dialog.show()
   
   def keyPressEvent(self, event):
     if event.key() == Qt.Key_Escape:
