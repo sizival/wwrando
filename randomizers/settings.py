@@ -17,7 +17,7 @@ class SettingsRandomizer(BaseRandomizer):
     def _randomize(self):
         for _ in range(10):
             self.select_settings()
-            self.rando.starting_items = self.rando.build_starting_items_from_options()
+            self.rando.starting_items = self.rando.set_starting_items_from_options()
             try:
                 self.check_for_valid_seed()
                 break

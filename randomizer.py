@@ -57,6 +57,7 @@ from randomizers.boss_reqs import RequiredBossesRandomizer
 from randomizers.hints import HintsRandomizer
 from randomizers.pigs import PigsRandomizer
 from randomizers.extra_starting_items import ExtraStartingItemsRandomizer
+from randomizers.settings import SettingsRandomizer
 
 from version import VERSION, VERSION_WITHOUT_COMMIT
 
@@ -75,13 +76,12 @@ class WWRandomizer:
     self.fully_initialized = False
     
     options.validate()
-    
+    SettingsRandomizer.normalize_options(options)
+
     self.randomized_output_folder = randomized_output_folder
     self.logs_output_folder = self.randomized_output_folder
     self.options = options
     self.seed = self.sanitize_seed(seed)
-    self.permalink = self.encode_permalink(self.seed, self.options)
-    self.seed_hash = self.get_seed_hash()
     
     if cmd_line_args is None:
       cmd_line_args = {}
@@ -91,6 +91,8 @@ class WWRandomizer:
     self.disassemble = cmd_line_args.disassemble
     self.export_disc_to_folder = cmd_line_args.exportfolder
     self.no_logs = cmd_line_args.nologs
+    self.randobot = cmd_line_args.randobot
+    compat_version = VERSION_WITHOUT_COMMIT if self.randobot else VERSION
     self.bulk_test = cmd_line_args.bulk
     if self.bulk_test:
       self.dry_run = True
@@ -108,9 +110,13 @@ class WWRandomizer:
       self.test_room_args = cmd_line_args.test
     
     seed_string = self.permalink
-    if self.options.do_not_generate_spoiler_log:
+    if self.options.do_not_generate_spoiler_log or (
+      self.options.randomize_settings and SettingsRandomizer.weights(self.options.random_settings_preset).is_managed(Options.by_name["do_not_generate_spoiler_log"])
+    ):
       seed_string += SEED_KEY
-    
+
+    self.permalink = self.encode_permalink(self.seed, self.options, pretend_version=compat_version)
+    self.seed_hash = self.get_seed_hash()
     self.integer_seed = self.convert_string_to_integer_md5(seed_string)
     
     self.arcs_by_path: dict[str, RARC] = {}
@@ -159,38 +165,13 @@ class WWRandomizer:
         stage_searcher.print_all_used_switches(self)
         sys.exit(0)
     
-    # Starting items. This list is read by the Logic when initializing your currently owned items list.
-    self.starting_items = [
-      "Wind Waker",
-      "Wind's Requiem",
-      "Boat's Sail",
-    ]
-    self.starting_items += self.options.starting_gear
-    
-    if self.options.sword_mode == SwordMode.START_WITH_SWORD:
-      self.starting_items.append("Progressive Sword")
-    # Add starting Triforce Shards.
-    num_starting_triforce_shards = self.options.num_starting_triforce_shards
-    for i in range(num_starting_triforce_shards):
-      self.starting_items.append("Triforce Shard %d" % (i+1))
-    
-    for i in range(self.options.starting_pohs):
-      self.starting_items.append("Piece of Heart")
-    
-    for i in range(self.options.starting_hcs):
-      self.starting_items.append("Heart Container")
-    
-    if not self.options.boss_soul_shuffle:
-      for soul_name in BOSS_SOUL_ITEMS:
-        if soul_name not in self.starting_items:
-          self.starting_items.append(soul_name)
-    
-    
+    self.set_starting_items_from_options()
     self.custom_model_name = self.options.custom_player_model
     self.using_custom_sail_texture = False
     
     self.logic = Logic(self)
-    
+
+    self.random_settings = SettingsRandomizer(self)
     self.items = ItemRandomizer(self)
     self.charts = ChartRandomizer(self)
     self.starting_island = StartingIslandRandomizer(self)
@@ -204,6 +185,8 @@ class WWRandomizer:
     
     # This list's order is the order these randomizers will be called in.
     self.randomizers: list[BaseRandomizer] = [
+      # The settings randomizer is too special and needs to be called before a bunch of other things
+      # self.settings,
       self.charts,
       # self.music,
       self.boss_reqs,
@@ -510,7 +493,36 @@ class WWRandomizer:
       tweaks.update_item_names_in_letter_advertising_rock_spire_shop(self)
     tweaks.add_shortcut_warps_into_dungeons(self)
     tweaks.prevent_fire_mountain_lava_softlock(self)
-  
+
+  def set_starting_items_from_options(self):
+    if self.fully_initialized:
+      raise Exception("Can't reset logic once rando has run")
+    # Starting items. This list is read by the Logic when initializing your currently owned items list.
+    self.starting_items = [
+          "Wind Waker",
+          "Wind's Requiem",
+          "Boat's Sail",
+        ]
+    self.starting_items += self.options.starting_gear
+    
+    if self.options.sword_mode == SwordMode.START_WITH_SWORD:
+      self.starting_items.append("Progressive Sword")
+    # Add starting Triforce Shards.
+    num_starting_triforce_shards = self.options.num_starting_triforce_shards
+    for i in range(num_starting_triforce_shards):
+      self.starting_items.append("Triforce Shard %d" % (i+1))
+    
+    for i in range(self.options.starting_pohs):
+      self.starting_items.append("Piece of Heart")
+    
+    for i in range(self.options.starting_hcs):
+      self.starting_items.append("Heart Container")
+    
+    if not self.options.boss_soul_shuffle:
+      for soul_name in BOSS_SOUL_ITEMS:
+        if soul_name not in self.starting_items:
+          self.starting_items.append(soul_name)
+
   @classmethod
   def sanitize_seed(cls, seed):
     seed = str(seed)
@@ -520,11 +532,13 @@ class WWRandomizer:
     return seed
   
   @classmethod
-  def encode_permalink(cls, seed: str, options: Options):
+  def encode_permalink(cls, seed: str, options: Options, pretend_version: str | None = None):
     seed = cls.sanitize_seed(seed)
+
+    version = pretend_version or VERSION
     
     permalink = b""
-    permalink += VERSION.encode("ascii")
+    permalink += version.encode("ascii")
     permalink += b"\0"
     permalink += seed.encode("ascii")
     permalink += b"\0"
@@ -532,6 +546,8 @@ class WWRandomizer:
     bitswriter = PackedBitsWriter()
     for option in Options.all():
       if not option.permalink:
+        continue
+      if options.randomize_settings and SettingsRandomizer.weights(options.random_settings_preset).is_managed(option):
         continue
       
       value = options[option.name]
@@ -624,7 +640,9 @@ class WWRandomizer:
     for option in Options.all():
       if not option.permalink:
         continue
-      
+      if options.randomize_settings and SettingsRandomizer.weights(options.random_settings_preset).is_managed(option):
+        continue
+
       if issubclass(option.type, bool):
         boolean_value = bool(bitsreader.read(1))
         options[option.name] = boolean_value
@@ -793,6 +811,9 @@ class WWRandomizer:
     
     with open(os.path.join(DATA_PATH, "rupeesanity_flags.txt"), "r") as f:
       self.rupeesanity_flags = yaml.load(f)
+
+    with open(os.path.join(DATA_PATH, "hint_stone_tablets.txt"), "r") as f:
+      self.hint_stone_tablets = yaml.load(f)
   
   def register_renamed_item(self, item_id, item_name):
     self.item_name_to_id[item_name] = item_id
@@ -1072,7 +1093,7 @@ class WWRandomizer:
   def get_log_header(self):
     header = ""
     
-    header += "Wind Waker Randomizer Version %s\n" % VERSION
+    header += "Wind Waker Randomizer Version %s\n" % (VERSION_WITHOUT_COMMIT if self.randobot else VERSION)
     
     if self.permalink:
       header += "Permalink: %s\n" % self.permalink
@@ -1087,6 +1108,10 @@ class WWRandomizer:
       option.name for option in Options.all()
       if self.options[option.name] not in [False, [], {}]
       and option.name not in ["randomized_gear", "progression_locations", "available_tricks"] # Just takes up space
+      and not (
+        self.random_settings.is_enabled()
+        and self.random_settings.weights(self.options.random_settings_preset).is_managed(option)
+      )
     ]
     option_strings = []
     for option_name in non_disabled_options:
@@ -1117,7 +1142,10 @@ class WWRandomizer:
     
     log_str = self.get_log_header()
     
-    log_str += self.items.write_to_non_spoiler_log()
+    if self.random_settings.is_enabled():
+      log_str += self.random_settings.write_to_non_spoiler_log()
+    else:
+      log_str += self.items.write_to_non_spoiler_log()
     
     os.makedirs(self.logs_output_folder, exist_ok=True)
     nonspoiler_log_output_path = os.path.join(self.logs_output_folder, "WW Random %s - Non-Spoiler Log.txt" % self.seed)
@@ -1133,6 +1161,9 @@ class WWRandomizer:
     
     spoiler_log = self.get_log_header()
 
+    if self.random_settings.is_enabled():
+      spoiler_log += self.random_settings.write_to_spoiler_log()
+    
     if self.extra_start_items.is_enabled():
       spoiler_log += self.extra_start_items.write_to_spoiler_log()
     
@@ -1152,6 +1183,8 @@ class WWRandomizer:
     
     os.makedirs(self.logs_output_folder, exist_ok=True)
     spoiler_log_output_path = os.path.join(self.logs_output_folder, "WW Random %s - Spoiler Log.txt" % self.seed)
+    if self.randobot:
+      spoiler_log_output_path = os.path.join(self.logs_output_folder, "spoiler_log_%s.txt" % self.seed)
     with open(spoiler_log_output_path, "w") as f:
       f.write(spoiler_log)
   
@@ -1171,6 +1204,16 @@ class WWRandomizer:
     error_log_output_path = os.path.join(self.logs_output_folder, "WW Random %s - Error Log.txt" % self.seed)
     with open(error_log_output_path, "w") as f:
       f.write(error_log_str)
-  
+
+  def write_randobot_files(self):
+    files: dict[str, Callable[[], str]] = {
+      "seed_hash_%s.txt": lambda: self.seed_hash,
+      "permalink_%s.txt": lambda: self.permalink,
+      # "spoiler_log_%s.txt": self.get_spoiler_log, # Monkeypatched in write_spoiler_log instead
+    }
+    for fname, gen in files.items():
+      with open(os.path.join(self.randomized_output_folder, fname % self.seed), "w") as f:
+        f.write(gen())
+
   def disassemble_all_code(self):
     disassemble.disassemble_all_code(self)
