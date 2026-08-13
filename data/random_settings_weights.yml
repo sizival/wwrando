@@ -493,8 +493,7 @@ pairings:
               name: bosses + shards + 2 = 8
               combo: [required_bosses, num_required_bosses, num_starting_triforce_shards, boss_soul_shuffle, prioritize_required_bosses]
               choices:
-                - !!python/tuple [{ required_bosses: False, num_required_bosses: 0, num_starting_triforce_shards: 6, boss_soul_shuffle: True, prioritize_required_bosses: False }, 1/14]
-                - !!python/tuple [{ required_bosses: False, num_required_bosses: 0, num_starting_triforce_shards: 6, boss_soul_shuffle: False, prioritize_required_bosses: True }, 1/14]
+                - !!python/tuple [{ required_bosses: False, num_required_bosses: 0, num_starting_triforce_shards: 6, boss_soul_shuffle: True, prioritize_required_bosses: False }, 2/14]
                 - !!python/tuple [{ required_bosses: True, num_required_bosses: 1, num_starting_triforce_shards: 5, boss_soul_shuffle: True, prioritize_required_bosses: False }, 1/14]
                 - !!python/tuple [{ required_bosses: True, num_required_bosses: 1, num_starting_triforce_shards: 5, boss_soul_shuffle: False, prioritize_required_bosses: True }, 1/14]
                 - !!python/tuple [{ required_bosses: True, num_required_bosses: 2, num_starting_triforce_shards: 4, boss_soul_shuffle: True, prioritize_required_bosses: False }, 1/14]
