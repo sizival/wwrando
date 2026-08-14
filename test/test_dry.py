@@ -67,6 +67,9 @@ def test_regression_entrance_inner_rando():
   options.randomize_boss_entrances = True
   options.required_bosses = True
   options.num_required_bosses = 3
+  # Boss souls would add 6 more progress items to this deliberately minimal set of
+  # progression locations, which is not what this regression test is exercising.
+  options.boss_soul_shuffle = False
   
   rando = dry_rando_with_options(options)
   rando.randomize_all()
@@ -195,6 +198,8 @@ def test_exclude_sunken_treasure_locations():
   
   options = Options()
   options.progression_dungeons = False
+  # Required bosses mode defaults on, but is invalid without progression dungeons.
+  options.required_bosses = False
   options.progression_triforce_charts = True
   options.progression_treasure_charts = True
   options.excluded_locations = locations_to_exclude

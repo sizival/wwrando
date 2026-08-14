@@ -7,8 +7,6 @@ default_progression:
     Convenience tweaks, difficulty settings and number of hints are not randomized, 
     letting you customize for an easier or harder experience
   weights:
-    # boss_soul_shuffle is correlated with progression_dungeons: souls only shuffle when
-    # dungeons are progression. Branch weights are required_bosses 90% x boss_soul_shuffle 70%.
     - name: dungeons_combo
       tree:
         root:
@@ -20,8 +18,7 @@ default_progression:
             choices:
               !!python/tuple [required_bosses, boss_soul_shuffle]: 63%
               !!python/tuple [required_bosses]: 27%
-              !!python/tuple [boss_soul_shuffle]: 7%
-              !!python/tuple []: 3%
+              !!python/tuple []: 10%
           false:
             combo: [required_bosses, boss_soul_shuffle]
             choices:
@@ -83,8 +80,6 @@ default_progression:
     - name: shuffle_maps_and_compasses
       choices:
         Start With: 1
-    - name: prioritize_required_bosses
-      weight: 50%
     - name: progression_rupee_dungeon
       weight: 60%
     - name: progression_rupee_overworld
@@ -242,14 +237,13 @@ default_both:
           weight: 80%
         branches:
           true:
-            combo: [required_bosses, skip_rematch_bosses, boss_soul_shuffle]
+            combo: [required_bosses, skip_rematch_bosses, boss_soul_shuffle, prioritize_required_bosses]
             choices:
               !!python/tuple [required_bosses, skip_rematch_bosses, boss_soul_shuffle]: 63%
-              !!python/tuple [required_bosses, skip_rematch_bosses]: 27%
-              !!python/tuple [skip_rematch_bosses, boss_soul_shuffle]: 7%
-              !!python/tuple [skip_rematch_bosses]: 3%
+              !!python/tuple [required_bosses, skip_rematch_bosses, prioritize_required_bosses]: 27%
+              !!python/tuple [skip_rematch_bosses]: 10%
           false:
-            combo: [required_bosses, skip_rematch_bosses, boss_soul_shuffle]
+            combo: [required_bosses, skip_rematch_bosses, boss_soul_shuffle, prioritize_required_bosses]
             choices:
               !!python/tuple [skip_rematch_bosses]: 75%
               !!python/tuple []: 25%
