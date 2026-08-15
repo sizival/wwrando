@@ -4,7 +4,7 @@ from enum import StrEnum
 from options.base_options import BaseOptions, option
 
 from logic.tricks import ALL_TRICK_NAMES
-from .randomized.data import DEFAULT_EXCLUDED_LOCATIONS, RANDOM_SETTINGS_PRESETS, WEIGHT_DATA as RANDOM_SETTINGS_DATA
+from .randomized.data import RANDOM_SETTINGS_PRESETS, WEIGHT_DATA as RANDOM_SETTINGS_DATA
 
 RandomSettingsPreset = StrEnum(
   "RandomSettingsPreset",
@@ -218,7 +218,7 @@ class Options(BaseOptions):
     description="Randomized locations that can have progress items.",
   )
   excluded_locations: list[str] = option(
-    default_factory=lambda: list(DEFAULT_EXCLUDED_LOCATIONS),
+    default_factory=lambda: [],
     description="Randomized locations that cannot have progress items.",
   )
   #endregion

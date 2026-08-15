@@ -261,6 +261,7 @@ class EntranceRandomizer(BaseRandomizer):
     self.safety_entrance = None
     self.banned_exits: list[ZoneExit] = []
     self.islands_with_a_banned_dungeon: set[str] = set()
+    self.islands_with_a_required_dungeon: set[str] = set()
     
     self.reset_entrance_connections()
   
@@ -342,6 +343,7 @@ class EntranceRandomizer(BaseRandomizer):
     self.safety_entrance = None
     self.banned_exits = []
     self.islands_with_a_banned_dungeon = set()
+    self.islands_with_a_required_dungeon = set()
     
     self.entrance_names_with_no_requirements = []
     self.exit_names_with_no_requirements = []
@@ -464,6 +466,8 @@ class EntranceRandomizer(BaseRandomizer):
       for en in DUNGEON_ENTRANCES:
         if self.entrance_connections[en.entrance_name] in self.rando.boss_reqs.banned_dungeons:
           self.islands_with_a_banned_dungeon.add(en.island_name)
+        elif self.entrance_connections[en.entrance_name] in self.rando.boss_reqs.required_dungeons:
+          self.islands_with_a_required_dungeon.add(en.island_name)
     
   def randomize_one_set_of_entrances(self, relevant_entrances: list[ZoneEntrance], relevant_exits: list[ZoneExit]):
     for zone_entrance in relevant_entrances:
@@ -515,7 +519,7 @@ class EntranceRandomizer(BaseRandomizer):
     remaining_entrances = relevant_entrances.copy()
     remaining_exits = relevant_exits.copy()
     
-    nonprogress_entrances, nonprogress_exits = self.split_nonprogress_entrances_and_exits(remaining_entrances, remaining_exits)
+    nonprogress_entrances, nonprogress_exits = self.split_nonprogress_entrances_and_exits(remaining_entrances, remaining_exits, terminal_exits)
     if nonprogress_entrances:
       for en in nonprogress_entrances:
         remaining_entrances.remove(en)
@@ -526,7 +530,13 @@ class EntranceRandomizer(BaseRandomizer):
     self.randomize_one_set_of_exits(remaining_entrances, remaining_exits, terminal_exits)
   
   def check_if_one_exit_is_progress(self, exit: ZoneExit) -> bool:
-    locs_for_exit = self.zone_exit_to_logically_dependent_item_locations[exit]
+    # Any already-determined nested exits under this one are also possibly progression.
+    locs_for_exit = []
+    for nested_ex in self.get_all_exits_nested_under(exit):
+      if nested_ex is None:
+        # This will only get determined later, so is not relevant yet.
+        continue
+      locs_for_exit += self.zone_exit_to_logically_dependent_item_locations[nested_ex]
     assert locs_for_exit, f"Could not find any item locations corresponding to zone exit: {exit.unique_name}"
     # Banned required bosses mode dungeons still technically count as progress locations, so
     # filter them out separately first.
@@ -537,7 +547,7 @@ class EntranceRandomizer(BaseRandomizer):
     progress_locs = self.logic.filter_locations_for_progression(nonbanned_locs)
     return bool(progress_locs)
 
-  def split_nonprogress_entrances_and_exits(self, relevant_entrances: list[ZoneEntrance], relevant_exits: list[ZoneExit]):
+  def split_nonprogress_entrances_and_exits(self, relevant_entrances: list[ZoneEntrance], relevant_exits: list[ZoneExit], terminal_exits: list[ZoneExit]):
     # Splits the entrance and exit lists into two pairs: ones that should be considered nonprogress
     # on this seed (will never lead to any progress items) and ones that should be considered
     # potentially required.
@@ -598,13 +608,58 @@ class EntranceRandomizer(BaseRandomizer):
     
     num_island_entrances_needed = len(nonprogress_exits) - len(nonprogress_entrances)
     if num_island_entrances_needed > len(possible_island_entrances):
-      raise Exception("Not enough island entrances left to split entrances.")
+      num_nonprogress_entrances_needed = num_island_entrances_needed - len(possible_island_entrances)
+      # Without enough island entrances, we will have to place some nonprogress exits behind progress
+      # entrances. We want these to be terminal exits so that players do not need to traverse an
+      # entire nonprogress location to access another progress location.
+      promotable_exits = [ex for ex in terminal_exits if ex in nonprogress_exits]
+      # Avoid promoting bosses in required bosses mode where possible, to avoid painting ourselves
+      # into a corner when assigning their exits.
+      if self.options.required_bosses:
+        promotable_exits_without_bosses = [
+          ex for ex in promotable_exits
+          if not self.get_all_exits_nested_under(ex) & set(BOSS_EXITS)
+        ]
+        if len(promotable_exits_without_bosses) >= num_nonprogress_entrances_needed:
+          promotable_exits = promotable_exits_without_bosses
+        else:
+          num_promoted_boss_exits = num_nonprogress_entrances_needed - len(promotable_exits_without_bosses)
+          promotable_boss_exits = [
+            ex for ex in promotable_exits
+            if self.get_all_exits_nested_under(ex) & set(BOSS_EXITS)
+          ]
+          self.rng.shuffle(promotable_boss_exits)
+          promotable_exits = promotable_exits_without_bosses + promotable_boss_exits[:num_promoted_boss_exits]
+
+      if num_nonprogress_entrances_needed > len(promotable_exits):
+        raise Exception("Not enough entrances left to split entrances.")
+
+      self.rng.shuffle(promotable_exits)
+      promoted_nonprogress_exits = promotable_exits[:num_nonprogress_entrances_needed]
+      num_island_entrances_needed -= len(promoted_nonprogress_exits)
+      for ex in promoted_nonprogress_exits:
+        nonprogress_exits.remove(ex)
+
     for i in range(num_island_entrances_needed):
       # Note: relevant_entrances is already shuffled, so we can just take the first result from
       # possible_island_entrances and it's the same as picking one randomly.
       nonprogress_island_entrance = possible_island_entrances.pop(0)
       nonprogress_entrances.append(nonprogress_island_entrance)
-    
+
+    if len(nonprogress_exits) < len(nonprogress_entrances):
+      # In this case we promote an entrance to progression instead. This means players will need to
+      # traverse a nonprogress location to get to progress locations, so we want to use the smallest
+      # possible entrances, i.e. force it to be a puzzle cave if possible.
+      # This is only known to happen for the inner entrance in Cliff Plateau Isles Cave when Long
+      # Sidequests are enabled (which pulls in Withered Trees).
+      num_promoted_entrances = len(nonprogress_entrances) - len(nonprogress_exits)
+      promotable_entrances = [en for en in nonprogress_entrances if en in SECRET_CAVE_INNER_ENTRANCES]
+      if len(promotable_entrances) < num_promoted_entrances:
+        raise Exception("Not enough progression entrances for needed exits.")
+      self.rng.shuffle(promotable_entrances)
+      promoted_entrances = promotable_entrances[:num_promoted_entrances]
+      nonprogress_entrances = [en for en in nonprogress_entrances if en not in promoted_entrances]
+
     assert len(nonprogress_entrances) == len(nonprogress_exits)
     
     return nonprogress_entrances, nonprogress_exits
@@ -617,17 +672,23 @@ class EntranceRandomizer(BaseRandomizer):
     if any(ex in self.banned_exits for ex in relevant_exits):
       doing_banned = True
     
-    if self.options.required_bosses and not doing_banned:
+    if self.options.required_bosses:
       # Prioritize entrances that share an island with an entrance randomized to lead into a
       # required bosses mode banned dungeon. (e.g. DRI, Pawprint, Outset, TotG sector.)
       # This is because we need to prevent these islands from having a required boss or anything
       # that could potentially lead to a required boss, and if we don't do this first we can get
       # backed into a corner where there is no other option left.
+      # When placing banned exits it's the mirror image: prioritize entrances sharing an island with
+      # a required dungeon, since we won't be able to place a banned dungeon there.
+      islands_to_prioritize = (
+        self.islands_with_a_required_dungeon if doing_banned
+        else self.islands_with_a_banned_dungeon
+      )
       entrances_not_on_unique_islands = []
       for zone_entrance in relevant_entrances:
         if zone_entrance.is_nested:
           continue
-        if zone_entrance.island_name in self.islands_with_a_banned_dungeon:
+        if zone_entrance.island_name in islands_to_prioritize:
           # This island was already used on a previous call to randomize_one_set_of_exits.
           entrances_not_on_unique_islands.append(zone_entrance)
           continue
@@ -685,6 +746,17 @@ class EntranceRandomizer(BaseRandomizer):
       #    if x.unique_name not in ["Fire Mountain Secret Cave", "Ice Ring Isle Secret Cave"]
       #  ]
       
+      if self.options.required_bosses and doing_banned:
+        # Prevent a banned dungeon/boss from being placed on an island that already has a required
+        # dungeon on it. (This mainly comes up when dungeon entrances are not randomized but boss
+        # entrances are, so the required dungeon islands are known up front.)
+        outermost_entrance = self.get_outermost_entrance_for_entrance(zone_entrance)
+        if outermost_entrance is not None and outermost_entrance.island_name in self.islands_with_a_required_dungeon:
+          possible_remaining_exits = [
+            ex for ex in possible_remaining_exits
+            if not self.get_all_exits_nested_under(ex) & set(self.banned_exits)
+          ]
+
       if self.options.required_bosses and zone_entrance.island_name is not None and not doing_banned:
         # Prevent required bosses (and non-terminal exits which could potentially lead to required
         # bosses) from appearing on islands where we already placed a banned boss or dungeon.
@@ -1179,6 +1251,22 @@ class EntranceRandomizer(BaseRandomizer):
     zone_exit = ZoneExit.all[boss_arena_name]
     outermost_entrance = self.get_outermost_entrance_for_exit(zone_exit)
     return outermost_entrance.island_name
+
+  def get_all_exits_nested_under(self, root_ex: ZoneExit | None) -> set[ZoneExit | None]:
+    # Returns a set of all the exits accessible under this one, including itself. The set will
+    # contain None if any of the nested entrances under it are currently unassigned.
+    if root_ex is None:
+      return {None}
+    nested_entrances = {
+      en for en in ZoneEntrance.all.values()
+      if en.nested_in is not None and en.nested_in == root_ex
+    }
+    accessible_exits = {self.done_entrances_to_exits.get(en, None) for en in nested_entrances}
+    for ex in list(accessible_exits):
+      if ex is not None:
+        accessible_exits.update(self.get_all_exits_nested_under(ex))
+    accessible_exits.add(root_ex)
+    return accessible_exits
 
   def can_assign_safety_entrance(self) -> bool:
     # We need to be able to assign at least one safety entrance with progression

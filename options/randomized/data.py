@@ -7,7 +7,6 @@ from ruamel.yaml.constructor import ConstructorError
 from wwrando_paths import DATA_PATH
 
 WEIGHTS_PATH = os.path.join(DATA_PATH, "random_settings_weights.yml")
-EXCLUDED_LOCATIONS_PATH = os.path.join(DATA_PATH, "default_excluded_locations.txt")
 
 
 def flatten(loader: Loader, node):
@@ -46,18 +45,6 @@ def load_data_files(file=WEIGHTS_PATH):
     assert all(ident.isidentifier() for ident in data.keys())
     return data
 
-
-# Locations that are excluded from holding progress items by default.
-# Kept as a data file rather than inline so it can be referenced from the weights yaml as well as
-# being the default value of the excluded_locations option.
-# Must be registered in EXPOSED_CONSTANTS before load_data_files() runs, or the reference in the
-# weights yaml fails to construct.
-with open(EXCLUDED_LOCATIONS_PATH) as f:
-    DEFAULT_EXCLUDED_LOCATIONS: list[str] = yaml.load(f)
-
-# Registered as a list, not a tuple: excluded_locations is a list[str] option, and the weights file
-# type-checks choices with isinstance(value, list).
-EXPOSED_CONSTANTS["options.randomized.data.DEFAULT_EXCLUDED_LOCATIONS"] = DEFAULT_EXCLUDED_LOCATIONS
 
 WEIGHT_DATA = load_data_files()
 
