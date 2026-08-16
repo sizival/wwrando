@@ -578,11 +578,12 @@ pairings:
     - name: shuffle_maps_and_compasses
       choices:
         Start With: 1
-    - name: rupees
+    - name: free rupees on the ground
       combo: [progression_rupee_dungeon, progression_rupee_overworld]
       choices:
-        !!python/tuple [progression_rupee_dungeon]: 50%
-        !!python/tuple [progression_rupee_overworld]: 50%
+        !!python/tuple []: 50%
+        !!python/tuple [progression_rupee_dungeon]: 25%
+        !!python/tuple [progression_rupee_overworld]: 25%
     - name: chus or orca
       combo: [progression_blue_chu_jellies, progression_orca_minigame]
       choices:
