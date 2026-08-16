@@ -639,7 +639,7 @@ season_roulette:
   display_order: 100
   name: Season Roulette
   description: >
-    Chooses between S3, S4, S5, S6, Miniblins S1, Miniblins S2, or spoiler log settings. 
+    Chooses between S3, S4, S5, S6, S7, S8, S9, Miniblins S1, Miniblins S2, or spoiler log settings. 
     Unlike usual random settings, you should be able to know your entire set of
     settings at the start of the seed.
     If the seed is a spoiler log seed, the spoiler log will be generated!
