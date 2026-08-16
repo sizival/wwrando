@@ -14,7 +14,9 @@
    </rect>
   </property>
   <layout class="QVBoxLayout">
-   <property name="margin">0</property>
+   <property name="margin">
+    <number>0</number>
+   </property>
    <item>
     <widget class="QTextEdit" name="weightsText">
    <property name="readOnly">

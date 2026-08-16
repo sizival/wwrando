@@ -1,14 +1,20 @@
+import os
 from typing import cast
-from PySide6.QtGui import *
-from PySide6.QtCore import *
-from PySide6.QtWidgets import *
-
-from wwr_ui.uic.ui_random_settings_weights_window import Ui_RandomSettingsWeightsWindow
+from qtpy.QtGui import *
+from qtpy.QtCore import *
+from qtpy.QtWidgets import *
+from wwr_ui.qt_init import load_ui_file
 
 from options.base_options import Option
 from options.wwrando_options import Options
 from options.randomized.weights import Choice, OptionWeight, format_weight
 from options.randomized.weight_sets import WeightSet
+from wwrando_paths import RANDO_ROOT_PATH
+
+if os.environ["QT_API"] == "pyside6":
+  from wwr_ui.uic.ui_random_settings_weights_window import Ui_RandomSettingsWeightsWindow
+else:
+  Ui_RandomSettingsWeightsWindow = load_ui_file(os.path.join(RANDO_ROOT_PATH, "wwr_ui", "random_settings_weights_window.ui"))
 
 
 class RSWeightsWindow(QDialog):
