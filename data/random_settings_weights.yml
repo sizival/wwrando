@@ -81,9 +81,9 @@ default_progression:
       choices:
         Start With: 1
     - name: progression_rupee_dungeon
-      weight: 60%
+      weight: 30%
     - name: progression_rupee_overworld
-      weight: 50%
+      weight: 30%
     - name: progression_blue_chu_jellies
       weight: 70%
     - name: progression_orca_minigame
@@ -251,12 +251,9 @@ default_both:
       disable:
       managed: true
     - name: starting_gear
-      min_combo: 2
       indiv_weights:
-        - !!python/tuple [[Telescope], 99%]
-        - !!python/tuple [[Ballad of Gales], 99%]
-        - !!python/tuple [[Song of Passing], 95%]
-        - !!python/tuple [!!python/name:logic.item_types.DUNGEON_NONPROGRESS_ITEMS , 80%]
+        - !!python/tuple [["Telescope", "Ballad of Gales", "Song of Passing"], "100%"]
+        - !!python/tuple [!!python/name:logic.item_types.DUNGEON_NONPROGRESS_ITEMS , "80%"]
     - name: always_double_magic
       weight: 70%
     - name: totg_tablet_from_start
