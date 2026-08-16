@@ -640,7 +640,7 @@ class HintsRandomizer(BaseRandomizer):
     for stone_tablet_index, hints_for_stone_tablet in self.stone_tablet_index_to_hints.items():
       hint_lines = []
       for i, hint in enumerate(hints_for_stone_tablet):
-        hint_lines.append(HintsRandomizer.get_formatted_hint_text(hint, self.cryptic_hints, prefix="", delay=0)) # don't add delay for stones
+        hint_lines.append(HintsRandomizer.get_formatted_hint_text(hint, self.cryptic_hints, self.hint_importance, prefix="", delay=0)) # don't add delay for stones
       if len(hint_lines) == 1:
         # Append an empty textbox to avoid softlock on one-box hintstones
         hint_lines.append("")
