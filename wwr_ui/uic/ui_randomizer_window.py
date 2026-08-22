@@ -1254,11 +1254,6 @@ class Ui_MainWindow(object):
 
         self.layout_dev_features.addWidget(self.widget_19, 4, 3, 1, 1)
 
-        self.widget_18 = QWidget(self.dev_features_groupbox)
-        self.widget_18.setObjectName(u"widget_18")
-
-        self.layout_dev_features.addWidget(self.widget_18, 4, 2, 1, 1)
-
         self.layout_mila_speedup = QHBoxLayout()
         self.layout_mila_speedup.setObjectName(u"layout_mila_speedup")
         self.label_for_mila_speedup = QLabel(self.dev_features_groupbox)
@@ -1318,6 +1313,11 @@ class Ui_MainWindow(object):
         self.fix_auction.setObjectName(u"fix_auction")
 
         self.layout_dev_features.addWidget(self.fix_auction, 2, 0, 1, 1)
+
+        self.simplified_triforce_chart_deciphering = QCheckBox(self.dev_features_groupbox)
+        self.simplified_triforce_chart_deciphering.setObjectName(u"simplified_triforce_chart_deciphering")
+
+        self.layout_dev_features.addWidget(self.simplified_triforce_chart_deciphering, 4, 2, 1, 1)
 
         self.add_drops = QCheckBox(self.dev_features_groupbox)
         self.add_drops.setObjectName(u"add_drops")
@@ -1619,7 +1619,8 @@ class Ui_MainWindow(object):
         QWidget.setTabOrder(self.skip_drc_plat_cs, self.always_skip_triforce_cutscene)
         QWidget.setTabOrder(self.always_skip_triforce_cutscene, self.add_drops)
         QWidget.setTabOrder(self.add_drops, self.quick_gohma)
-        QWidget.setTabOrder(self.quick_gohma, self.do_not_generate_spoiler_log)
+        QWidget.setTabOrder(self.quick_gohma, self.simplified_triforce_chart_deciphering)
+        QWidget.setTabOrder(self.simplified_triforce_chart_deciphering, self.do_not_generate_spoiler_log)
         QWidget.setTabOrder(self.do_not_generate_spoiler_log, self.dry_run)
         QWidget.setTabOrder(self.dry_run, self.randomize_settings)
         QWidget.setTabOrder(self.randomize_settings, self.random_settings_preset)
@@ -1807,6 +1808,7 @@ class Ui_MainWindow(object):
         self.kamo_any_moon_phase.setText(QCoreApplication.translate("MainWindow", u"Kamo Accepts Any Moon Phase", None))
         self.wallet_fill_behavior.setText(QCoreApplication.translate("MainWindow", u"Fill Wallets When Received", None))
         self.fix_auction.setText(QCoreApplication.translate("MainWindow", u"Fix Auction", None))
+        self.simplified_triforce_chart_deciphering.setText(QCoreApplication.translate("MainWindow", u"Simplified Triforce Chart Deciphering", None))
         self.add_drops.setText(QCoreApplication.translate("MainWindow", u"Add Static Drops", None))
         self.shorten_mail_minigame.setText(QCoreApplication.translate("MainWindow", u"Shorten Mail Sorting Minigame", None))
         self.always_skip_triforce_cutscene.setText(QCoreApplication.translate("MainWindow", u"Always Skip Triforce Cutscene", None))

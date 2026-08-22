@@ -3328,6 +3328,39 @@ def set_wallet_fill_behavior(self: WWRandomizer):
   fill_wallet_value = int(self.options.wallet_fill_behavior)
   self.dol.write_data(fs.write_u8, self.main_custom_symbols["should_fill_wallet_on_receive"], fill_wallet_value)
 
+def update_simplified_triforce_chart_deciphering(self: WWRandomizer):
+  # Repoint the Triforce Chart item get functions at custom ones that auto-decipher the chart
+  # on pickup if the player has already paid Tingle once.
+  # (The in-game deciphering behavior itself is changed by the simplified_triforce_chart_deciphering ASM patch.)
+  item_get_funcs_list = 0x803888C8
+  for chart_number in range(1, 8+1):
+    chart_item_id = 0xFF - chart_number # Item IDs 0xFE down to 0xF7 are Triforce Charts 1-8
+    item_get_func_addr = item_get_funcs_list + chart_item_id*4
+    custom_symbol_name = "triforce_chart_%d_auto_decipher_item_func" % chart_number
+    self.dol.write_data(fs.write_u32, item_get_func_addr, self.main_custom_symbols[custom_symbol_name])
+
+  # Update Tingle's deciphering offer and explanation text to describe the new deal.
+  msg = self.bmg.messages_by_id[0xDBE]
+  msg.string = (
+    "I will \\{1A 06 FF 00 00 01}decipher\\{1A 06 FF 00 00 00} ALL your \\{1A 06 FF 00 00 01}Triforce Charts\\{1A 06 FF 00 00 00},\n"
+    "even ones you find later! \\{1A 05 00 00 01}...For \\{1A 06 FF 00 00 01}398 Rupees\\{1A 05 00 00 02}\\{1A 06 FF 00 00 00}?\n"
+    "\\{1A 05 00 00 08}Sure\n"
+    "No thanks"
+  )
+  msg = self.bmg.messages_by_id[0xDC4]
+  msg.string = (
+    "Hmmm...\\{1A 07 00 00 07 00 1E} Mr. Fairy!\\{1A 07 00 00 07 00 14} I have deciphered\n"
+    "ALL your \\{1A 06 FF 00 00 01}Triforce Charts\\{1A 06 FF 00 00 00}! Even charts you\n"
+    "find later will already be readable!\n"
+    "\n"
+    "When you open a \\{1A 06 FF 00 00 01}chart\\{1A 06 FF 00 00 00} by pressing \\{1A 05 00 00 10}\n"
+    "on your \\{1A 06 FF 00 00 01}Sea Chart\\{1A 06 FF 00 00 00}, the place where the\n"
+    "treasure is will shine forth!\n"
+    "\n"
+    "Then, just go to that place and rely on\n"
+    "your \\{1A 06 FF 00 00 01}chart\\{1A 06 FF 00 00 00} to help you find the treasure!"
+  )
+
 def speed_up_tingle_jail_cutscene(self: WWRandomizer):
   # Speed up Tingle's jail rescue cutscene by modifying the event system.
   event_list: EventList = self.get_arc("files/res/Stage/Pnezumi/Stage.arc").get_file("event_list.dat", EventList)

@@ -823,6 +823,11 @@ class Options(BaseOptions):
     description="Remove RNG from the auction by fixing the cycle to increasing price order.<br>"
       "The prizes for each auction will be displayed on the auction flyer inside the House of Wealth."
     )
+  simplified_triforce_chart_deciphering: bool = option(
+    default=True,
+    description="Paying Tingle 398 Rupees once deciphers all Triforce Charts you own at once, "
+      "and any Triforce Chart you find afterwards will already be deciphered."
+    )
   totg_tablet_from_start: bool = option(
     default=False,
     description="Makes the Command Melody tablet in Tower of the Gods visible from the start. Once the tablet check is obtained, the portal appears without needing to bring the statues.<br>"

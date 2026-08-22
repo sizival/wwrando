@@ -495,6 +495,9 @@ class WWRandomizer:
       tweaks.speed_up_tingle_jail_cutscene(self)
     if self.options.quick_gohma:
       patcher.apply_patch(self, "quick_gohma")
+    if self.options.simplified_triforce_chart_deciphering:
+      patcher.apply_patch(self, "simplified_triforce_chart_deciphering")
+      tweaks.update_simplified_triforce_chart_deciphering(self)
 
     patcher.apply_patch(self, "orca_minigame_rewards")
     if self.options.orca_one_hit_knockout:

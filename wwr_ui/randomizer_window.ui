@@ -1810,9 +1810,6 @@
                <item row="4" column="3">
                 <widget class="QWidget" name="widget_19" native="true"/>
                </item>
-               <item row="4" column="2">
-                <widget class="QWidget" name="widget_18" native="true"/>
-               </item>
                <item row="1" column="0">
                 <layout class="QHBoxLayout" name="layout_mila_speedup">
                  <item>
@@ -1902,6 +1899,13 @@
                 <widget class="QCheckBox" name="fix_auction">
                  <property name="text">
                   <string>Fix Auction</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="2">
+                <widget class="QCheckBox" name="simplified_triforce_chart_deciphering">
+                 <property name="text">
+                  <string>Simplified Triforce Chart Deciphering</string>
                  </property>
                 </widget>
                </item>
@@ -2289,6 +2293,7 @@
   <tabstop>always_skip_triforce_cutscene</tabstop>
   <tabstop>add_drops</tabstop>
   <tabstop>quick_gohma</tabstop>
+  <tabstop>simplified_triforce_chart_deciphering</tabstop>
   <tabstop>do_not_generate_spoiler_log</tabstop>
   <tabstop>dry_run</tabstop>
   <tabstop>randomize_settings</tabstop>

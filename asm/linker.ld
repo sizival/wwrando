@@ -34,6 +34,14 @@ item_func_small_key__Fv = 0x800c31b0;
 item_func_boss_key__Fv = 0x800c3fc8;
 item_func_map__Fv = 0x800c3f68;
 item_func_compass__Fv = 0x800c3f98;
+item_func_collectmap01__Fv = 0x800c6320;
+item_func_collectmap02__Fv = 0x800c62cc;
+item_func_collectmap03__Fv = 0x800c6278;
+item_func_collectmap04__Fv = 0x800c6224;
+item_func_collectmap05__Fv = 0x800c61d0;
+item_func_collectmap06__Fv = 0x800c617c;
+item_func_collectmap07__Fv = 0x800c6128;
+item_func_collectmap08__Fv = 0x800c60c8;
 
 onEventBit__11dSv_event_cFUs = 0x8005cb04;
 isEventBit__11dSv_event_cFUs = 0x8005cb34;
@@ -50,6 +58,9 @@ dComIfGs_isStageBossEnemy__Fi = 0x800539a8;
 getTriforceNum__20dSv_player_collect_cFv = 0x8005b230;
 dComIfGs_isStageTbox__Fii = 0x80053918;
 isTbox__12dSv_memBit_cFi = 0x8005c188;
+isGetMap__16dSv_player_map_cFi = 0x8005b3cc;
+onTriforce__16dSv_player_map_cFi = 0x8005b88c;
+isTriforce__16dSv_player_map_cFi = 0x8005b9cc;
 
 fopMsgM_int_to_char__FPcib = 0x800350b8;
 strcmp = 0x8032db44;
