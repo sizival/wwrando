@@ -3343,15 +3343,15 @@ def update_simplified_triforce_chart_deciphering(self: WWRandomizer):
   msg = self.bmg.messages_by_id[0xDBE]
   msg.string = (
     "I will \\{1A 06 FF 00 00 01}decipher\\{1A 06 FF 00 00 00} ALL your \\{1A 06 FF 00 00 01}Triforce Charts\\{1A 06 FF 00 00 00},\n"
-    "even ones you find later! \\{1A 05 00 00 01}...For \\{1A 06 FF 00 00 01}398 Rupees\\{1A 05 00 00 02}\\{1A 06 FF 00 00 00}?\n"
+    "AND teach you how! \\{1A 05 00 00 01}...For \\{1A 06 FF 00 00 01}398 Rupees\\{1A 05 00 00 02}\\{1A 06 FF 00 00 00}?\n"
     "\\{1A 05 00 00 08}Sure\n"
     "No thanks"
   )
   msg = self.bmg.messages_by_id[0xDC4]
   msg.string = (
     "Hmmm...\\{1A 07 00 00 07 00 1E} Mr. Fairy!\\{1A 07 00 00 07 00 14} I have deciphered\n"
-    "ALL your \\{1A 06 FF 00 00 01}Triforce Charts\\{1A 06 FF 00 00 00}! Even charts you\n"
-    "find later will already be readable!\n"
+    "ALL your \\{1A 06 FF 00 00 01}Triforce Charts\\{1A 06 FF 00 00 00}, and taught you\n"
+    "how to \\{1A 06 FF 00 00 01}decipher\\{1A 06 FF 00 00 00} any you find later!\n"
     "\n"
     "When you open a \\{1A 06 FF 00 00 01}chart\\{1A 06 FF 00 00 00} by pressing \\{1A 05 00 00 10}\n"
     "on your \\{1A 06 FF 00 00 01}Sea Chart\\{1A 06 FF 00 00 00}, the place where the\n"
