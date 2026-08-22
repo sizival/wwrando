@@ -750,6 +750,7 @@ season_roulette:
         - speedup_tingle_jail
         - fix_auction
         - quick_gohma
+        - simplified_triforce_chart_deciphering
       choices:
         - !!python/tuple [
             {
@@ -857,6 +858,7 @@ season_roulette:
               speedup_tingle_jail: false,
               fix_auction: false,
               quick_gohma: false,
+              simplified_triforce_chart_deciphering: false,
             }
             , 1/10
           ]
@@ -966,6 +968,7 @@ season_roulette:
               speedup_tingle_jail: false,
               fix_auction: false,
               quick_gohma: false,
+              simplified_triforce_chart_deciphering: false,
             }
             , 1/10
           ]
@@ -1084,6 +1087,7 @@ season_roulette:
               speedup_tingle_jail: false,
               fix_auction: false,
               quick_gohma: false,
+              simplified_triforce_chart_deciphering: false,
             }
             , 1/10
           ]
@@ -1200,6 +1204,7 @@ season_roulette:
               speedup_tingle_jail: false,
               fix_auction: false,
               quick_gohma: false,
+              simplified_triforce_chart_deciphering: false,
             }
             , 1/10
           ]
@@ -1325,6 +1330,7 @@ season_roulette:
               speedup_tingle_jail: false,
               fix_auction: false,
               quick_gohma: false,
+              simplified_triforce_chart_deciphering: false,
             }
             , 1/10
           ]
@@ -1450,6 +1456,7 @@ season_roulette:
               speedup_tingle_jail: false,
               fix_auction: false,
               quick_gohma: false,
+              simplified_triforce_chart_deciphering: false,
             }
             , 1/10
           ]
@@ -1559,6 +1566,7 @@ season_roulette:
               speedup_tingle_jail: false,
               fix_auction: false,
               quick_gohma: false,
+              simplified_triforce_chart_deciphering: false,
             }
             , 1/60 # 6 presets
           ]
@@ -1668,6 +1676,7 @@ season_roulette:
               speedup_tingle_jail: false,
               fix_auction: false,
               quick_gohma: false,
+              simplified_triforce_chart_deciphering: false,
             }
             , 1/60 # 6 presets
           ]
@@ -1777,6 +1786,7 @@ season_roulette:
               speedup_tingle_jail: false,
               fix_auction: false,
               quick_gohma: false,
+              simplified_triforce_chart_deciphering: false,
             }
             , 1/60 # 6 presets
           ]
@@ -1886,6 +1896,7 @@ season_roulette:
               speedup_tingle_jail: false,
               fix_auction: false,
               quick_gohma: false,
+              simplified_triforce_chart_deciphering: false,
             }
             , 1/60 # 6 presets
           ]
@@ -1995,6 +2006,7 @@ season_roulette:
               speedup_tingle_jail: false,
               fix_auction: false,
               quick_gohma: false,
+              simplified_triforce_chart_deciphering: false,
             }
             , 1/60 # 6 presets
           ]
@@ -2104,6 +2116,7 @@ season_roulette:
               speedup_tingle_jail: false,
               fix_auction: false,
               quick_gohma: false,
+              simplified_triforce_chart_deciphering: false,
             }
             , 1/60 # 6 presets
           ]
@@ -2213,6 +2226,7 @@ season_roulette:
               speedup_tingle_jail: false,
               fix_auction: false,
               quick_gohma: false,
+              simplified_triforce_chart_deciphering: false,
             }
             , 1/10
           ]
@@ -2322,6 +2336,7 @@ season_roulette:
               speedup_tingle_jail: false,
               fix_auction: false,
               quick_gohma: false,
+              simplified_triforce_chart_deciphering: false,
             }
             , 1/10
           ]
@@ -2431,6 +2446,7 @@ season_roulette:
               speedup_tingle_jail: false,
               fix_auction: false,
               quick_gohma: false,
+              simplified_triforce_chart_deciphering: false,
             }
             , 1/10
           ]

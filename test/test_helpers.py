@@ -114,6 +114,7 @@ def enable_all_options(options: Options):
   
   options.swift_sail = True
   options.instant_text_boxes = True
+  options.simplified_triforce_chart_deciphering = True
   options.reveal_full_sea_chart = True
   options.add_shortcut_warps_between_dungeons = True
   options.skip_rematch_bosses = True

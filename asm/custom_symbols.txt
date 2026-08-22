@@ -163,9 +163,19 @@ sys/main.dol:
   rupeesanity_fix_spawn_switch: 0x803FFA84
   rupeesanity_set_flag: 0x803FFAB4
   rupeesanity_add_sparkle: 0x803FFB80
-  give_temporary_sword_during_ganondorf_fight_in_swordless: 0x803FFBF0
-  give_temporary_sword_in_orcas_house_in_swordless: 0x803FFC0C
-  remove_temporary_sword_when_loading_stage_in_swordless: 0x803FFC54
+  simplified_decipher_all_owned_charts: 0x803FFBF0
+  simplified_auto_decipher_owned_chart: 0x803FFC90
+  triforce_chart_1_auto_decipher_item_func: 0x803FFCE0
+  triforce_chart_2_auto_decipher_item_func: 0x803FFD08
+  triforce_chart_3_auto_decipher_item_func: 0x803FFD30
+  triforce_chart_4_auto_decipher_item_func: 0x803FFD58
+  triforce_chart_5_auto_decipher_item_func: 0x803FFD80
+  triforce_chart_6_auto_decipher_item_func: 0x803FFDA8
+  triforce_chart_7_auto_decipher_item_func: 0x803FFDD0
+  triforce_chart_8_auto_decipher_item_func: 0x803FFDF8
+  give_temporary_sword_during_ganondorf_fight_in_swordless: 0x803FFE20
+  give_temporary_sword_in_orcas_house_in_swordless: 0x803FFE3C
+  remove_temporary_sword_when_loading_stage_in_swordless: 0x803FFE84
   test_room_stage_name: 0x8022D034
   test_room_starting_items_list: 0x8022D03C
   test_room_spawn_id: 0x800531E3
